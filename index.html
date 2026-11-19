@@ -220,10 +220,10 @@
             <span id="story-page-counter" class="story-counter">Chapter 1 of 3</span>
           </div>
 
-          <!-- Realistic Hardcover Open Book (True 2-Page Spread) -->
+          <!-- Realistic Hardcover Open Book (1 Physical Page on Mobile, 2-Page Spread on Desktop) -->
           <div class="storybook-frame">
             <div class="real-book-cover-back" aria-hidden="true"></div>
-            <div id="story-page-card" class="real-book-spread">
+            <div id="story-page-card" class="real-book-spread" data-mobile-side="left">
               <div class="book-stack-edge book-stack-left" aria-hidden="true"></div>
               <div class="book-stack-edge book-stack-right" aria-hidden="true"></div>
               <div class="book-ribbon" aria-hidden="true"></div>
@@ -249,6 +249,11 @@
               <article class="book-leaf book-leaf-right">
                 <div class="leaf-inner-border">
                   <div id="story-running-chapter" class="book-running-head">Chapter I</div>
+                  <div class="book-right-ornament" aria-hidden="true">
+                    <span class="ornament-rule"></span>
+                    <span class="ornament-mark">☽</span>
+                    <span class="ornament-rule"></span>
+                  </div>
                   <div id="story-body-right" class="story-prose"></div>
                   <p id="story-closing-line" class="story-closing-line" hidden></p>
                   <span id="story-folio-right" class="book-folio">2</span>
@@ -917,17 +922,17 @@
       </section>
 
       <!-- ================================================================
-           FINAL ENDING: SITTING TOGETHER WATCHING "I LOVE YOU" FIREWORKS
+           FINAL ENDING: SITTING TOGETHER WATCHING "I LOVE YOU YANA" FIREWORKS
            Rear-view cinematic composition: Boy (left) & Girl (right) seated
-           side by side facing the open fireworks sky, ending in natural fade.
+           side by side facing the deep navy fireworks sky, ending in natural fade.
            ================================================================ -->
       <section
         id="scene-finale"
         class="scene scene-finale"
-        aria-label="Sitting Together Watching Fireworks"
+        aria-label="Sitting Together Watching I LOVE YOU YANA Fireworks"
         hidden
       >
-        <!-- Deep Atmospheric Night Sky & Horizon Glow -->
+        <!-- Deep Atmospheric Midnight Navy Sky & Horizon Glow -->
         <div class="finale-sky-atmosphere" aria-hidden="true"></div>
 
         <!-- Soft Moon Hanging in the Open Night Sky -->
@@ -944,7 +949,7 @@
         <!-- Dynamic Firework Illumination Glow Behind Characters -->
         <div id="finale-rim-wash" class="finale-rim-wash" aria-hidden="true"></div>
 
-        <!-- Dedicated 60fps Fireworks, Water Reflections & Sparkling "I LOVE YOU" Canvas -->
+        <!-- Dedicated 60fps Fireworks, Smoke, Water Reflections & Sparkling "I LOVE YOU YANA" Canvas -->
         <canvas id="fireworks-canvas" class="fireworks-canvas" aria-hidden="true"></canvas>
 
         <!-- Wide Peaceful Nighttime Vista: Seated Couple From Behind (Boy Left, Girl Right) -->

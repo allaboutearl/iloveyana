@@ -1027,18 +1027,25 @@ body[data-scene='moon'] .atmosphere-layer {
 }
 
 /* ==========================================================================
-   PAGE 2: THE STORY (Realistic 2-Page Open Hardcover Book on All Screens)
+   PAGE 2: THE STORY (Responsive Realistic Physical Hardcover Book)
+   Mobile (< 760px): One authentic physical book page at a time (Pages 1–6)
+   Desktop (>= 760px): Full two-page open hardcover book spread (3 chapters)
    ========================================================================== */
 .scene-story {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 18px 8px 30px;
+  min-height: 100dvh;
+  width: 100%;
+  overflow-x: clip;
+  padding: 20px 16px 32px;
 }
 
 .story-shell {
   width: 100%;
-  max-width: 960px;
+  max-width: 480px;
+  margin: auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1048,8 +1055,10 @@ body[data-scene='moon'] .atmosphere-layer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 36px;
-  padding: 0 8px;
+  gap: 10px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0 4px;
   padding-right: 54px; /* Keep clear of floating music toggle */
 }
 
@@ -1058,6 +1067,7 @@ body[data-scene='moon'] .atmosphere-layer {
   color: var(--text-muted);
   min-height: 40px;
   padding: 4px 6px;
+  white-space: nowrap;
   transition: color 0.2s ease;
 }
 
@@ -1068,56 +1078,56 @@ body[data-scene='moon'] .atmosphere-layer {
 .story-counter {
   margin-left: auto;
   font-family: var(--font-serif);
-  font-size: 1.05rem;
+  font-size: 1rem;
   font-style: italic;
   color: var(--gold);
   letter-spacing: 0.04em;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 
-/* Realistic Open Hardcover Book Container */
+/* Realistic Physical Hardcover Book Container (Mobile: Single Held Page) */
 .storybook-frame {
   position: relative;
+  width: 100%;
   perspective: 1800px;
-  padding: 7px 9px 12px;
+  padding: 8px 11px 13px 13px;
 }
 
-/* Dark Midnight Navy Leather Hardcover Boards + Gold Trim + Center Spine Hinge */
+/* Dark Midnight Navy Leather Hardcover Board Peeking Around the Physical Page */
 .real-book-cover-back {
   position: absolute;
   inset: 0;
-  border-radius: 10px;
-  background:
-    linear-gradient(
-      90deg,
-      #1b2347 0%,
-      #151c3a 47%,
-      #090d1e 49.4%,
-      #232c56 50%,
-      #090d1e 50.6%,
-      #151c3a 53%,
-      #1b2347 100%
-    );
+  border-radius: 6px 13px 13px 6px;
+  background: linear-gradient(
+    90deg,
+    #0a0f22 0%,
+    #212b54 3.2%,
+    #111732 6%,
+    #192144 42%,
+    #121836 100%
+  );
   border: 1px solid rgba(223, 196, 150, 0.38);
   box-shadow:
-    0 26px 60px rgba(2, 4, 12, 0.76),
+    0 26px 56px rgba(2, 4, 12, 0.78),
     inset 0 0 0 3px rgba(10, 14, 30, 0.55),
     inset 0 0 0 4px rgba(223, 196, 150, 0.16),
     inset 0 1px 0 rgba(255, 250, 238, 0.14);
   pointer-events: none;
 }
 
-/* Subtle Raised Leather Spine Caps at Top & Bottom Center */
+/* Spine Caps Hidden on Single-Page Mobile View (Shown on 2-Page Desktop Spread) */
 .real-book-cover-back::before,
 .real-book-cover-back::after {
   content: '';
+  display: none;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  width: 24px;
-  height: 7px;
+  width: 34px;
+  height: 9px;
   background: linear-gradient(90deg, #0d1226 0%, #27325e 50%, #0d1226 100%);
-  border: 1px solid rgba(223, 196, 150, 0.3);
+  border: 1px solid rgba(223, 196, 150, 0.32);
 }
 
 .real-book-cover-back::before {
@@ -1132,117 +1142,118 @@ body[data-scene='moon'] .atmosphere-layer {
   border-radius: 6px 6px 0 0;
 }
 
-/* True Two-Page Open Book Spread on Mobile, Tablet & Desktop */
+/* Mobile Single-Page Paper Block: Curved Spine Fold on Left, Stacked Pages on Right & Bottom */
 .real-book-spread {
   position: relative;
   z-index: 1;
+  width: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 2px minmax(0, 1fr);
-  min-height: 360px;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: var(--book-uniform-height, min(66dvh, 560px));
   background:
-    /* Subtle Organic Warm Parchment Paper Grain */
-    radial-gradient(ellipse at 24% 18%, rgba(255, 253, 248, 0.55), transparent 56%),
-    radial-gradient(ellipse at 76% 82%, rgba(255, 253, 248, 0.45), transparent 56%),
-    /* Physical Cylindrical Page Curvature Into Center Spine Gutter */
+    /* Fine Warm Parchment Surface Variation */
+    radial-gradient(ellipse at 32% 20%, rgba(255, 253, 248, 0.62), transparent 58%),
+    radial-gradient(ellipse at 74% 82%, rgba(246, 236, 218, 0.42), transparent 58%),
+    /* Physical Book Page Curvature: Deep Spine Fold Left -> Bright Arch -> Gently Curled Fore-Edge Right */
     linear-gradient(
       90deg,
-      #e6dac4 0%,
-      #f6efe0 2.5%,
-      #fdfaf3 18%,
-      #fbf6eb 41%,
-      #ede2ce 47.6%,
-      #d6c5ab 49.5%,
-      #b7a385 50%,
-      #d8c8af 50.5%,
-      #eee3d0 52.4%,
-      #fbf6eb 59%,
-      #fdfaf3 82%,
-      #f6efe0 97.5%,
+      #c6b497 0%,
+      #dfd1ba 2.4%,
+      #f2e9d8 7.5%,
+      #fbf7ee 24%,
+      #fdfaf3 72%,
+      #f6efe0 93%,
       #e6dac4 100%
     );
   color: var(--ink-dark);
-  border-radius: 5px;
-  /* Layered Bottom Paper Block Thickness Beneath Both Pages */
+  border-radius: 3px 9px 9px 3px;
+  /* Layered Cream Page Stack Underneath & Along Outer Fore-Edge */
   box-shadow:
-    -3px 3px 0 -1px #efe6d5,
-    -3px 3px 0 0 rgba(114, 92, 66, 0.28),
-    3px 3px 0 -1px #efe6d5,
+    3px 3px 0 -1px #f1e8d8,
     3px 3px 0 0 rgba(114, 92, 66, 0.28),
-    -6px 6px 0 -1px #e2d5be,
-    6px 6px 0 -1px #e2d5be,
-    0 18px 40px rgba(4, 7, 18, 0.48);
+    6px 6px 0 -1px #e4d7c1,
+    6px 6px 0 0 rgba(102, 80, 56, 0.26),
+    inset 14px 0 22px -12px rgba(48, 34, 22, 0.36),
+    inset -6px 0 12px -8px rgba(82, 64, 44, 0.22),
+    0 18px 38px rgba(4, 7, 18, 0.5);
   transform-style: preserve-3d;
   overflow: visible;
+  touch-action: pan-y;
 }
 
-/* Stacked Paper Page Edges on Both Left & Right Outer Margins */
+/* Mobile Single-Page View Shows Only the Active Page (Left = Pages 1,3,5 | Right = Pages 2,4,6) */
+.real-book-spread[data-mobile-side='left'] .book-leaf-right {
+  display: none;
+}
+
+.real-book-spread[data-mobile-side='right'] .book-leaf-left {
+  display: none;
+}
+
+/* Stacked Paper Page Edges */
 .book-stack-edge {
   position: absolute;
   top: 2px;
   bottom: 2px;
-  width: 6px;
   pointer-events: none;
   z-index: 2;
 }
 
+/* Left Edge on Mobile: Subtle Sewn Spine Binding Groove */
 .book-stack-left {
-  left: -5px;
+  left: -4px;
+  width: 5px;
   border-radius: 3px 0 0 3px;
-  background: repeating-linear-gradient(
-    90deg,
-    #d6c7ae 0px,
-    #efe6d6 1.5px,
-    #dfd1ba 2.5px
-  );
-  box-shadow:
-    inset -1px 0 2px rgba(82, 64, 44, 0.28),
-    -1px 1px 3px rgba(5, 8, 18, 0.32);
+  background: linear-gradient(90deg, #1b2242 0%, #3a3442 55%, #b9a487 100%);
+  box-shadow: inset -1px 0 2px rgba(20, 14, 10, 0.35);
 }
 
+/* Right Edge on Mobile: Realistic Layered Cream Fore-Edge Paper Stack */
 .book-stack-right {
-  right: -5px;
-  border-radius: 0 3px 3px 0;
+  right: -7px;
+  width: 8px;
+  border-radius: 0 5px 5px 0;
   background: repeating-linear-gradient(
     90deg,
     #dfd1ba 0px,
-    #efe6d6 1.5px,
-    #d6c7ae 2.5px
+    #f3ebdc 1.5px,
+    #d4c4aa 2.6px
   );
   box-shadow:
-    inset 1px 0 2px rgba(82, 64, 44, 0.28),
-    1px 1px 3px rgba(5, 8, 18, 0.32);
+    inset 1px 0 2px rgba(82, 64, 44, 0.3),
+    2px 2px 5px rgba(5, 8, 18, 0.34);
 }
 
-/* Silk Bookmark Ribbon Sewn Into Top of Center Spine */
+/* Silk Bookmark Ribbon Resting Along Top Edge of the Page */
 .book-ribbon {
   position: absolute;
-  top: -1px;
-  left: calc(50% + 5px);
-  width: 11px;
-  height: 30px;
-  background: linear-gradient(180deg, #b86f83 0%, #995568 100%);
+  top: -2px;
+  right: 26px;
+  width: 13px;
+  height: 36px;
+  background: linear-gradient(180deg, #bc7286 0%, #965265 100%);
   clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
-  box-shadow: 0 3px 8px rgba(40, 20, 28, 0.28);
+  box-shadow: 0 4px 10px rgba(40, 18, 26, 0.32);
   z-index: 4;
   pointer-events: none;
 }
 
 /* Smooth Content Cross-Softening During Physical Page Flip */
 .book-leaf .leaf-inner-border {
-  transition: opacity 0.32s var(--ease-gentle);
+  transition: opacity 0.3s var(--ease-gentle);
 }
 
 .real-book-spread.is-flipping .book-leaf .leaf-inner-border {
-  opacity: 0.78;
+  opacity: 0.72;
 }
 
-/* Realistic 3D Center-Hinged Turning Parchment Leaf (Always Hinged Along Spine) */
+/* Realistic 3D Turning Parchment Leaf (Mobile: Hinged Along Left Book Spine) */
 .book-turning-leaf {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 50%;
-  width: 50%;
+  left: 0;
+  width: 100%;
   transform-origin: left center;
   transform-style: preserve-3d;
   pointer-events: none;
@@ -1262,84 +1273,128 @@ body[data-scene='moon'] .atmosphere-layer {
 
 .turning-leaf-front {
   transform: translateZ(0.4px);
-  border-radius: 0 5px 5px 0;
+  border-radius: 3px 9px 9px 3px;
   background:
     repeating-linear-gradient(
       180deg,
       transparent 0px,
-      transparent 17px,
-      rgba(128, 108, 92, 0.055) 17px,
-      rgba(128, 108, 92, 0.055) 18.5px
+      transparent 19px,
+      rgba(128, 108, 92, 0.055) 19px,
+      rgba(128, 108, 92, 0.055) 20.5px
     ),
     linear-gradient(
       90deg,
-      #dfd1ba 0%,
-      #f7f0e2 11%,
-      #fdfaf3 72%,
-      #efe4cf 100%
+      #d8c8ae 0%,
+      #f6efe0 11%,
+      #fdfaf3 74%,
+      #ede1cc 100%
     );
   background-origin: content-box, border-box;
-  padding: 28px 18px 24px;
+  padding: 34px 24px 28px;
   box-shadow:
-    inset 14px 0 24px -12px rgba(48, 36, 24, 0.3),
-    -4px 10px 26px rgba(10, 14, 30, 0.24);
+    inset 16px 0 26px -12px rgba(48, 36, 24, 0.34),
+    -4px 12px 28px rgba(10, 14, 30, 0.28);
 }
 
 .turning-leaf-back {
   transform: rotateY(180deg) translateZ(0.4px);
-  border-radius: 5px 0 0 5px;
+  border-radius: 9px 3px 3px 9px;
   background:
     repeating-linear-gradient(
       180deg,
       transparent 0px,
-      transparent 17px,
-      rgba(128, 108, 92, 0.055) 17px,
-      rgba(128, 108, 92, 0.055) 18.5px
+      transparent 19px,
+      rgba(128, 108, 92, 0.055) 19px,
+      rgba(128, 108, 92, 0.055) 20.5px
     ),
     linear-gradient(
       270deg,
-      #ddd0b8 0%,
-      #f6eee0 12%,
+      #d6c6ac 0%,
+      #f5ede0 12%,
       #fbf6eb 74%,
       #ebe0ca 100%
     );
   background-origin: content-box, border-box;
-  padding: 28px 18px 24px;
+  padding: 34px 24px 28px;
   box-shadow:
-    inset -14px 0 24px -12px rgba(48, 36, 24, 0.3),
-    4px 10px 26px rgba(10, 14, 30, 0.22);
+    inset -16px 0 26px -12px rgba(48, 36, 24, 0.34),
+    4px 12px 28px rgba(10, 14, 30, 0.24);
 }
 
-/* Soft Dynamic Shadow Sweeping Across Both Pages During Turn */
+/* Soft Dynamic Shadow Sweeping Across the Underlying Page During Turn */
 .book-turn-shadow {
   position: absolute;
   inset: 0;
-  border-radius: 5px;
+  border-radius: 3px 9px 9px 3px;
   pointer-events: none;
   z-index: 10;
   opacity: 0;
   background: linear-gradient(
     90deg,
-    transparent 18%,
-    rgba(32, 24, 38, 0.2) 48%,
-    rgba(24, 18, 30, 0.28) 50%,
-    rgba(32, 24, 38, 0.16) 56%,
-    transparent 84%
+    rgba(28, 20, 34, 0.34) 0%,
+    rgba(28, 20, 34, 0.14) 36%,
+    transparent 78%
   );
 }
 
 .book-turning-leaf.flip-next {
   visibility: visible;
-  animation: pageTurnNextSpread 0.84s cubic-bezier(0.32, 0.06, 0.22, 1) forwards;
+  animation: pageTurnNextMobile 0.82s cubic-bezier(0.32, 0.06, 0.22, 1) forwards;
 }
 
 .book-turning-leaf.flip-prev {
   visibility: visible;
-  animation: pageTurnPrevSpread 0.84s cubic-bezier(0.32, 0.06, 0.22, 1) forwards;
+  animation: pageTurnPrevMobile 0.82s cubic-bezier(0.32, 0.06, 0.22, 1) forwards;
 }
 
 .book-turn-shadow.is-casting {
-  animation: pageShadowSweep 0.84s cubic-bezier(0.32, 0.06, 0.22, 1) forwards;
+  animation: pageShadowSweep 0.82s cubic-bezier(0.32, 0.06, 0.22, 1) forwards;
+}
+
+@keyframes pageTurnNextMobile {
+  0% {
+    opacity: 0;
+    transform: rotateY(0deg);
+  }
+  9% {
+    opacity: 0.98;
+    transform: rotateY(-12deg);
+  }
+  50% {
+    opacity: 1;
+    transform: rotateY(-94deg);
+  }
+  88% {
+    opacity: 0.82;
+    transform: rotateY(-158deg);
+  }
+  100% {
+    opacity: 0;
+    transform: rotateY(-174deg);
+  }
+}
+
+@keyframes pageTurnPrevMobile {
+  0% {
+    opacity: 0;
+    transform: rotateY(-170deg);
+  }
+  12% {
+    opacity: 0.9;
+    transform: rotateY(-150deg);
+  }
+  50% {
+    opacity: 1;
+    transform: rotateY(-84deg);
+  }
+  88% {
+    opacity: 0.96;
+    transform: rotateY(-10deg);
+  }
+  100% {
+    opacity: 0;
+    transform: rotateY(0deg);
+  }
 }
 
 @keyframes pageTurnNextSpread {
@@ -1398,20 +1453,17 @@ body[data-scene='moon'] .atmosphere-layer {
   }
 }
 
+/* Comfortable Mobile Single-Page Margins & Authentic Book Typography */
 .book-leaf {
   position: relative;
   min-width: 0;
-  padding: 12px 9px 11px 10px;
+  height: 100%;
+  padding: 24px 22px 20px 30px;
 }
 
-.book-leaf-left {
-  padding-right: 11px;
-  box-shadow: inset -12px 0 18px -14px rgba(58, 42, 28, 0.34);
-}
-
+.book-leaf-left,
 .book-leaf-right {
-  padding: 12px 10px 11px 11px;
-  box-shadow: inset 12px 0 18px -14px rgba(58, 42, 28, 0.34);
+  box-shadow: none;
 }
 
 .leaf-inner-border {
@@ -1419,22 +1471,45 @@ body[data-scene='moon'] .atmosphere-layer {
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
 }
 
 .book-running-head {
   display: block;
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: clamp(0.66rem, 1.85vw, 0.8rem);
-  letter-spacing: 0.05em;
-  color: rgba(110, 90, 82, 0.68);
+  font-size: 0.82rem;
+  letter-spacing: 0.07em;
+  color: rgba(108, 88, 80, 0.7);
   text-align: center;
-  padding-bottom: 4px;
-  border-bottom: 1px solid rgba(176, 146, 108, 0.24);
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(176, 146, 108, 0.25);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Subtle Decorative Divider at Top of Continuation / Right Pages */
+.book-right-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 2px auto 2px;
+  width: 112px;
+  opacity: 0.72;
+}
+
+.book-right-ornament .ornament-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(176, 146, 108, 0.65), transparent);
+}
+
+.book-right-ornament .ornament-mark {
+  font-size: 0.85rem;
+  color: #9c7456;
+  line-height: 1;
 }
 
 .book-chapter-head {
@@ -1442,36 +1517,36 @@ body[data-scene='moon'] .atmosphere-layer {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 3px;
-  padding-bottom: 4px;
+  gap: 6px;
+  padding: 4px 0 6px;
 }
 
 .story-chapter-label {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: clamp(0.76rem, 2.2vw, 0.95rem);
+  font-size: 0.96rem;
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: #8b5b6c;
 }
 
 .story-heading {
   font-family: var(--font-serif);
-  font-size: clamp(1.06rem, 3.4vw, 2.05rem);
+  font-size: clamp(1.62rem, 6vw, 2.08rem);
   font-weight: 500;
-  line-height: 1.16;
+  line-height: 1.2;
   color: #241d2e;
   text-wrap: balance;
 }
 
 .story-illustration {
-  width: clamp(72px, 18vw, 116px);
-  height: clamp(24px, 6vw, 44px);
-  margin-top: 1px;
+  width: 118px;
+  height: 40px;
+  margin-top: 2px;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.85;
+  opacity: 0.86;
 }
 
 .story-illustration svg {
@@ -1483,12 +1558,11 @@ body[data-scene='moon'] .atmosphere-layer {
 .story-prose {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 15px;
   font-family: var(--font-serif);
-  font-size: clamp(0.86rem, 2.5vw, 1.04rem);
-  line-height: 1.48;
+  font-size: clamp(1.08rem, 4.35vw, 1.18rem);
+  line-height: 1.72;
   color: #262030;
-  hyphens: auto;
   overflow-wrap: break-word;
 }
 
@@ -1496,8 +1570,8 @@ body[data-scene='moon'] .atmosphere-layer {
   text-wrap: pretty;
 }
 
-#story-body-left p:first-child::first-letter {
-  font-size: 1.38em;
+.book-leaf-left .story-prose p:first-child::first-letter {
+  font-size: 1.42em;
   font-weight: 600;
   color: #6b4354;
   line-height: 1;
@@ -1509,7 +1583,7 @@ body[data-scene='moon'] .atmosphere-layer {
   border-top: 1px solid rgba(176, 146, 108, 0.3);
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: clamp(0.95rem, 2.8vw, 1.38rem);
+  font-size: 1.32rem;
   font-weight: 500;
   line-height: 1.35;
   color: #6f3f53;
@@ -1519,33 +1593,17 @@ body[data-scene='moon'] .atmosphere-layer {
 .book-folio {
   display: block;
   margin-top: auto;
-  padding-top: 8px;
+  padding-top: 14px;
   font-family: var(--font-serif);
-  font-size: clamp(0.68rem, 1.9vw, 0.86rem);
-  color: rgba(110, 92, 84, 0.68);
+  font-size: 0.88rem;
+  color: rgba(108, 90, 82, 0.72);
   font-variant-numeric: tabular-nums;
+  text-align: center;
 }
 
-.book-leaf-left .book-folio {
-  text-align: left;
-}
-
-.book-leaf-right .book-folio {
-  text-align: right;
-}
-
+/* Center Spine Crease Hidden on Single-Page Mobile (Restored on Desktop 2-Page Spread) */
 .book-center-crease {
-  display: block;
-  width: 2px;
-  background: linear-gradient(
-    180deg,
-    rgba(86, 68, 48, 0.18),
-    rgba(72, 56, 38, 0.42) 50%,
-    rgba(86, 68, 48, 0.18)
-  );
-  box-shadow:
-    -3px 0 7px rgba(64, 48, 32, 0.18),
-    3px 0 7px rgba(64, 48, 32, 0.18);
+  display: none;
 }
 
 /* Story Footer with Moving Usagi & Continue Button */
@@ -1554,6 +1612,7 @@ body[data-scene='moon'] .atmosphere-layer {
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
+  min-height: 88px;
   padding-top: 6px;
 }
 
@@ -2838,23 +2897,62 @@ body[data-scene='moon'] .moon-space-backdrop {
   }
 
   .scene-story {
-    padding: 26px 20px 38px;
+    padding: 26px 24px 38px;
+  }
+
+  .story-shell {
+    max-width: 920px;
+    gap: 18px;
   }
 
   .storybook-frame {
     padding: 12px 16px 18px;
   }
 
-  .real-book-cover-back::before,
-  .real-book-cover-back::after {
-    width: 34px;
-    height: 9px;
+  /* Two-Page Open Hardcover Boards With Center Spine Hinge & Raised Spine Caps */
+  .real-book-cover-back {
+    border-radius: 10px;
+    background: linear-gradient(
+      90deg,
+      #1b2347 0%,
+      #151c3a 47%,
+      #090d1e 49.4%,
+      #232c56 50%,
+      #090d1e 50.6%,
+      #151c3a 53%,
+      #1b2347 100%
+    );
   }
 
-  /* Generous Desktop Proportions for the Open Two-Page Hardcover Book */
+  .real-book-cover-back::before,
+  .real-book-cover-back::after {
+    display: block;
+  }
+
+  /* Desktop: Full Two-Page Open Hardcover Book Spread (Identical Uniform Height Across All 3 Chapters) */
   .real-book-spread {
-    min-height: 510px;
+    grid-template-columns: minmax(0, 1fr) 2px minmax(0, 1fr);
+    min-height: var(--book-uniform-height, 640px);
     border-radius: 6px;
+    background:
+      radial-gradient(ellipse at 24% 18%, rgba(255, 253, 248, 0.55), transparent 56%),
+      radial-gradient(ellipse at 76% 82%, rgba(255, 253, 248, 0.45), transparent 56%),
+      linear-gradient(
+        90deg,
+        #e6dac4 0%,
+        #f6efe0 2.5%,
+        #fdfaf3 18%,
+        #fbf6eb 41%,
+        #ede2ce 47.6%,
+        #d6c5ab 49.5%,
+        #b7a385 50%,
+        #d8c8af 50.5%,
+        #eee3d0 52.4%,
+        #fbf6eb 59%,
+        #fdfaf3 82%,
+        #f6efe0 97.5%,
+        #e6dac4 100%
+      );
     box-shadow:
       -5px 4px 0 -1px #efe6d5,
       -5px 4px 0 0 rgba(118, 96, 70, 0.3),
@@ -2865,22 +2963,83 @@ body[data-scene='moon'] .moon-space-backdrop {
       0 22px 48px rgba(4, 7, 18, 0.45);
   }
 
+  /* Always Show Both Pages Side-by-Side on Desktop */
+  .real-book-spread[data-mobile-side='left'] .book-leaf-right,
+  .real-book-spread[data-mobile-side='right'] .book-leaf-left {
+    display: block;
+  }
+
+  .book-center-crease {
+    display: block;
+    width: 2px;
+    background: linear-gradient(
+      180deg,
+      rgba(86, 68, 48, 0.18),
+      rgba(72, 56, 38, 0.42) 50%,
+      rgba(86, 68, 48, 0.18)
+    );
+    box-shadow:
+      -3px 0 7px rgba(64, 48, 32, 0.18),
+      3px 0 7px rgba(64, 48, 32, 0.18);
+  }
+
+  /* Stacked Paper Edges on Both Left & Right Sides of the Open Spread */
   .book-stack-edge {
     width: 9px;
   }
 
   .book-stack-left {
     left: -8px;
+    border-radius: 3px 0 0 3px;
+    background: repeating-linear-gradient(
+      90deg,
+      #d6c7ae 0px,
+      #efe6d6 1.5px,
+      #dfd1ba 2.5px
+    );
+    box-shadow:
+      inset -1px 0 2px rgba(82, 64, 44, 0.28),
+      -1px 1px 3px rgba(5, 8, 18, 0.32);
   }
 
   .book-stack-right {
     right: -8px;
+    border-radius: 0 3px 3px 0;
   }
 
   .book-ribbon {
+    top: -1px;
+    right: auto;
     left: calc(50% + 8px);
     width: 14px;
     height: 40px;
+  }
+
+  /* Desktop Two-Page Spread: Turning Leaf Hinges Exactly Along Center Spine */
+  .book-turning-leaf {
+    left: 50%;
+    width: 50%;
+    transform-origin: left center;
+  }
+
+  .turning-leaf-front {
+    border-radius: 0 5px 5px 0;
+  }
+
+  .turning-leaf-back {
+    border-radius: 5px 0 0 5px;
+  }
+
+  .book-turn-shadow {
+    border-radius: 6px;
+    background: linear-gradient(
+      90deg,
+      transparent 18%,
+      rgba(32, 24, 38, 0.2) 48%,
+      rgba(24, 18, 30, 0.28) 50%,
+      rgba(32, 24, 38, 0.16) 56%,
+      transparent 84%
+    );
   }
 
   .book-turning-leaf.flip-next {
@@ -2901,10 +3060,12 @@ body[data-scene='moon'] .moon-space-backdrop {
 
   .book-leaf-left {
     padding-right: 38px;
+    box-shadow: inset -14px 0 20px -15px rgba(58, 42, 28, 0.34);
   }
 
   .book-leaf-right {
     padding: 28px 34px 24px 38px;
+    box-shadow: inset 14px 0 20px -15px rgba(58, 42, 28, 0.34);
   }
 
   .leaf-inner-border {
@@ -2912,12 +3073,17 @@ body[data-scene='moon'] .moon-space-backdrop {
   }
 
   .book-running-head {
+    font-size: 0.8rem;
     padding-bottom: 6px;
   }
 
   .book-chapter-head {
     gap: 6px;
     padding-bottom: 8px;
+  }
+
+  .story-heading {
+    font-size: 2.02rem;
   }
 
   .story-prose {
@@ -2928,6 +3094,19 @@ body[data-scene='moon'] .moon-space-backdrop {
 
   .book-folio {
     padding-top: 12px;
+    font-size: 0.86rem;
+  }
+
+  .book-leaf-left .book-folio {
+    text-align: left;
+  }
+
+  .book-leaf-right .book-folio {
+    text-align: right;
+  }
+
+  .story-footer {
+    min-height: 102px;
   }
 
   .usagi-story-pos {
@@ -2996,14 +3175,21 @@ body[data-scene='moon'] .moon-space-backdrop {
 /* ==========================================================================
    MOON TEASER ("Wait... there's more!"), FLOWER ANIMATION & FIREWORKS FINALE
    ========================================================================== */
-body[data-scene='flower'],
-body[data-scene='finale'] {
+body[data-scene='flower'] {
   background: #050814;
 }
 
-body[data-scene='flower'] .moon-space-backdrop,
-body[data-scene='finale'] .moon-space-backdrop {
+body[data-scene='finale'] {
+  background: #050917;
+}
+
+body[data-scene='flower'] .moon-space-backdrop {
   opacity: 0.78;
+  visibility: visible;
+}
+
+body[data-scene='finale'] .moon-space-backdrop {
+  opacity: 0.26;
   visibility: visible;
 }
 
@@ -3398,13 +3584,15 @@ body[data-scene='finale'] .moon-space-backdrop {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: linear-gradient(
-    180deg,
-    rgba(6, 10, 26, 0.55) 0%,
-    rgba(13, 21, 48, 0.52) 48%,
-    rgba(24, 30, 62, 0.58) 68%,
-    rgba(7, 10, 22, 0.88) 100%
-  );
+  background:
+    radial-gradient(ellipse 85% 58% at 50% 24%, rgba(22, 34, 72, 0.54) 0%, transparent 72%),
+    linear-gradient(
+      180deg,
+      rgba(5, 9, 24, 0.88) 0%,
+      rgba(9, 16, 40, 0.78) 44%,
+      rgba(16, 25, 56, 0.74) 68%,
+      rgba(6, 10, 22, 0.92) 100%
+    );
 }
 
 .finale-moon-wrap {

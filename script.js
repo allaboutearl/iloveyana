@@ -938,6 +938,9 @@ async function switchScene(targetName) {
   skyEngine.setMode(targetName);
 
   nextEl.hidden = false;
+  if (targetName === 'story') {
+    syncUniformBookHeight();
+  }
   window.scrollTo({ top: 0, behavior: 'instant' });
 
   requestAnimationFrame(() => {
@@ -1010,7 +1013,7 @@ function initCoverScene() {
 }
 
 /* ==========================================================================
-   9. PAGE 2 — REALISTIC 3-CHAPTER BOOK PROGRESSION
+   9. PAGE 2 — RESPONSIVE REALISTIC BOOK (1 Page Mobile / 2-Page Desktop Spread)
    ========================================================================== */
 const storyCard = document.getElementById('story-page-card');
 const bookTurningLeaf = document.getElementById('book-turning-leaf');
@@ -1030,6 +1033,10 @@ const btnStoryBack = document.getElementById('btn-story-back');
 const usagiStory = document.getElementById('usagi-story');
 const usagiStoryWhisper = document.getElementById('usagi-story-whisper');
 
+const desktopBookMedia = window.matchMedia('(min-width: 760px)');
+const isDesktopBook = () => desktopBookMedia.matches;
+const TOTAL_BOOK_PAGES = STORY_CONFIG.storyPages.length * 2; // 6 physical pages across 3 chapters
+
 function renderParagraphList(container, paragraphs) {
   if (!container) return;
   container.innerHTML = '';
@@ -1040,26 +1047,135 @@ function renderParagraphList(container, paragraphs) {
   });
 }
 
-function renderStoryPage(index, animateTurn = true, direction = 'next') {
-  const pages = STORY_CONFIG.storyPages;
-  const page = pages[index];
-  if (!page) return;
+function updateStoryMetaChrome(pageIdx) {
+  const chapters = STORY_CONFIG.storyPages;
+  const chapterIdx = Math.floor(pageIdx / 2);
+  const chapter = chapters[chapterIdx];
+  if (!chapter) return;
+
+  if (isDesktopBook()) {
+    storyCounter.textContent = `Chapter ${chapterIdx + 1} of ${chapters.length}`;
+    if (btnStoryBack) {
+      btnStoryBack.innerHTML = '&larr; Previous chapter';
+      btnStoryBack.hidden = chapterIdx === 0;
+    }
+  } else {
+    storyCounter.textContent = `Page ${pageIdx + 1} of ${TOTAL_BOOK_PAGES} · ${chapter.chapter}`;
+    if (btnStoryBack) {
+      btnStoryBack.innerHTML = '&larr; Previous page';
+      btnStoryBack.hidden = pageIdx === 0;
+    }
+  }
+}
+
+let uniformHeightResizeTimer = null;
+
+/**
+ * Measures all 3 chapters at the active viewport width using an invisible off-flow
+ * clone so Chapters 1, 2, and 3 share the exact same pixel height with zero layout
+ * jumps, zero clipping, and consistent positioning across mobile, tablet, and desktop.
+ */
+function syncUniformBookHeight() {
+  if (!storyCard || !storyCard.parentElement) return;
+  const cardWidth = storyCard.getBoundingClientRect().width;
+  if (cardWidth <= 0) return;
+
+  const clone = storyCard.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.setAttribute('aria-hidden', 'true');
+  clone.classList.remove('is-flipping');
+  clone.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
+  clone.querySelectorAll('.book-turning-leaf, .book-turn-shadow').forEach((el) => el.remove());
+
+  clone.style.position = 'absolute';
+  clone.style.top = '0';
+  clone.style.left = '0';
+  clone.style.width = `${cardWidth}px`;
+  clone.style.minHeight = '0';
+  clone.style.height = 'auto';
+  clone.style.visibility = 'hidden';
+  clone.style.pointerEvents = 'none';
+  clone.style.zIndex = '-1';
+  clone.style.transition = 'none';
+
+  storyCard.parentElement.appendChild(clone);
+
+  const cloneChapter = clone.querySelector('.story-chapter-label');
+  const cloneRunning = clone.querySelector('.book-leaf-right .book-running-head');
+  const cloneHeading = clone.querySelector('.story-heading');
+  const cloneIllus = clone.querySelector('.story-illustration');
+  const cloneBodyLeft = clone.querySelector('.book-leaf-left .story-prose');
+  const cloneBodyRight = clone.querySelector('.book-leaf-right .story-prose');
+  const cloneClosing = clone.querySelector('.story-closing-line');
+
+  const desktop = isDesktopBook();
+  const viewportFloor = desktop
+    ? Math.min(Math.round(window.innerHeight * 0.68), 640)
+    : Math.min(Math.round(window.innerHeight * 0.64), 560);
+  let maxH = viewportFloor;
+
+  STORY_CONFIG.storyPages.forEach((ch) => {
+    if (cloneChapter) cloneChapter.textContent = ch.chapter;
+    if (cloneRunning) cloneRunning.textContent = `${ch.chapter} · ${ch.heading}`;
+    if (cloneHeading) cloneHeading.textContent = ch.heading;
+    if (cloneIllus) {
+      cloneIllus.innerHTML =
+        STORY_ILLUSTRATIONS[ch.illustration] || STORY_ILLUSTRATIONS.constellation;
+    }
+    renderParagraphList(cloneBodyLeft, ch.leftParagraphs);
+    renderParagraphList(cloneBodyRight, ch.rightParagraphs);
+    if (cloneClosing) {
+      if (ch.closingLine) {
+        cloneClosing.textContent = ch.closingLine;
+        cloneClosing.hidden = false;
+      } else {
+        cloneClosing.textContent = '';
+        cloneClosing.hidden = true;
+      }
+    }
+
+    if (desktop) {
+      maxH = Math.max(maxH, clone.offsetHeight);
+    } else {
+      clone.setAttribute('data-mobile-side', 'left');
+      maxH = Math.max(maxH, clone.offsetHeight);
+      clone.setAttribute('data-mobile-side', 'right');
+      maxH = Math.max(maxH, clone.offsetHeight);
+    }
+  });
+
+  clone.remove();
+  storyCard.style.setProperty('--book-uniform-height', `${Math.ceil(maxH)}px`);
+}
+
+function renderStoryPage(pageIdx, animateTurn = true, direction = 'next') {
+  const clampedIdx = Math.max(0, Math.min(pageIdx, TOTAL_BOOK_PAGES - 1));
+  const chapterIdx = Math.floor(clampedIdx / 2);
+  const mobileSide = clampedIdx % 2 === 0 ? 'left' : 'right';
+  const chapter = STORY_CONFIG.storyPages[chapterIdx];
+  if (!chapter) return;
 
   const applyContent = () => {
-    state.storyIndex = index;
-    storyCounter.textContent = `Chapter ${index + 1} of ${pages.length}`;
-    storyChapter.textContent = page.chapter;
-    if (storyRunningChapter) storyRunningChapter.textContent = page.chapter;
-    storyHeading.textContent = page.heading;
-    storyIllustration.innerHTML =
-      STORY_ILLUSTRATIONS[page.illustration] || STORY_ILLUSTRATIONS.constellation;
+    state.storyIndex = clampedIdx;
+    if (storyCard) {
+      storyCard.setAttribute('data-mobile-side', mobileSide);
+    }
 
-    renderParagraphList(storyBodyLeft, page.leftParagraphs);
-    renderParagraphList(storyBodyRight, page.rightParagraphs);
+    updateStoryMetaChrome(clampedIdx);
+    storyChapter.textContent = chapter.chapter;
+    if (storyRunningChapter) {
+      storyRunningChapter.textContent = `${chapter.chapter} · ${chapter.heading}`;
+    }
+    storyHeading.textContent = chapter.heading;
+    storyIllustration.innerHTML =
+      STORY_ILLUSTRATIONS[chapter.illustration] || STORY_ILLUSTRATIONS.constellation;
+
+    renderParagraphList(storyBodyLeft, chapter.leftParagraphs);
+    renderParagraphList(storyBodyRight, chapter.rightParagraphs);
 
     if (storyClosingLine) {
-      if (page.closingLine) {
-        storyClosingLine.textContent = page.closingLine;
+      if (chapter.closingLine) {
+        storyClosingLine.textContent = chapter.closingLine;
         storyClosingLine.hidden = false;
       } else {
         storyClosingLine.textContent = '';
@@ -1067,10 +1183,9 @@ function renderStoryPage(index, animateTurn = true, direction = 'next') {
       }
     }
 
-    if (storyFolioLeft) storyFolioLeft.textContent = String(index * 2 + 1);
-    if (storyFolioRight) storyFolioRight.textContent = String(index * 2 + 2);
+    if (storyFolioLeft) storyFolioLeft.textContent = String(chapterIdx * 2 + 1);
+    if (storyFolioRight) storyFolioRight.textContent = String(chapterIdx * 2 + 2);
 
-    btnStoryBack.hidden = index === 0;
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Walk Usagi smoothly to this chapter's anchor position
@@ -1078,14 +1193,19 @@ function renderStoryPage(index, animateTurn = true, direction = 'next') {
       usagiStory.classList.remove('pos-left', 'pos-mid', 'pos-near-cta');
       setUsagiState(usagiStory, 'walking');
       requestAnimationFrame(() => {
-        usagiStory.classList.add(page.usagiPos || 'pos-left');
+        usagiStory.classList.add(chapter.usagiPos || 'pos-left');
       });
+
+      const whisperText =
+        !isDesktopBook() && mobileSide === 'left'
+          ? 'Turn to the next page...'
+          : chapter.usagiWhisper;
 
       window.setTimeout(
         () => {
-          setUsagiState(usagiStory, page.usagiMood || 'idle');
-          if (page.usagiWhisper) {
-            showUsagiWhisper(usagiStoryWhisper, page.usagiWhisper, 2600);
+          setUsagiState(usagiStory, chapter.usagiMood || 'idle');
+          if (whisperText) {
+            showUsagiWhisper(usagiStoryWhisper, whisperText, 2600);
           }
         },
         prefersReducedMotion ? 100 : 750
@@ -1116,17 +1236,17 @@ function renderStoryPage(index, animateTurn = true, direction = 'next') {
   bookTurningLeaf.classList.add(flipClass);
   if (bookTurnShadow) bookTurnShadow.classList.add('is-casting');
 
-  // Swap the printed chapter text seamlessly at the 90-degree apex of the page turn
+  // Swap the printed book page seamlessly at the 90-degree apex of the page turn
   window.setTimeout(() => {
     applyContent();
-  }, 410);
+  }, 400);
 
   window.setTimeout(() => {
     bookTurningLeaf.classList.remove('flip-next', 'flip-prev');
     if (bookTurnShadow) bookTurnShadow.classList.remove('is-casting');
     storyCard.classList.remove('is-flipping');
     state.isTransitioning = false;
-  }, 880);
+  }, 860);
 }
 
 function initStoryScene() {
@@ -1135,57 +1255,137 @@ function initStoryScene() {
     'Every word is meant for you',
   ]);
 
-  const turnToPreviousChapter = () => {
-    if (state.isTransitioning || state.storyIndex <= 0) return;
-    renderStoryPage(state.storyIndex - 1, true, 'prev');
-  };
-
-  const turnToNextChapterOrQuestion = async () => {
+  const turnToPreviousPage = () => {
     if (state.isTransitioning) return;
-    const lastIdx = STORY_CONFIG.storyPages.length - 1;
-
-    if (state.storyIndex < lastIdx) {
-      renderStoryPage(state.storyIndex + 1, true, 'next');
+    if (isDesktopBook()) {
+      const currentChapter = Math.floor(state.storyIndex / 2);
+      if (currentChapter <= 0) return;
+      renderStoryPage((currentChapter - 1) * 2, true, 'prev');
     } else {
-      // Turn the final page smoothly with paper sound before entering the Question scene
-      state.isTransitioning = true;
-      setUsagiState(usagiStory, 'walking');
-      paperSoundEngine.playPageTurn('next');
-      if (bookTurningLeaf && !prefersReducedMotion) {
-        storyCard.classList.add('is-flipping');
-        bookTurningLeaf.classList.remove('flip-next', 'flip-prev');
-        if (bookTurnShadow) bookTurnShadow.classList.remove('is-casting');
-        void bookTurningLeaf.offsetWidth;
-        bookTurningLeaf.classList.add('flip-next');
-        if (bookTurnShadow) bookTurnShadow.classList.add('is-casting');
-        await wait(520);
-      }
-      await switchScene('question');
-      if (bookTurningLeaf) bookTurningLeaf.classList.remove('flip-next', 'flip-prev');
-      if (bookTurnShadow) bookTurnShadow.classList.remove('is-casting');
-      storyCard.classList.remove('is-flipping');
-      revealQuestionSequence();
-      state.isTransitioning = false;
+      if (state.storyIndex <= 0) return;
+      renderStoryPage(state.storyIndex - 1, true, 'prev');
     }
   };
 
+  const turnToNextPageOrQuestion = async () => {
+    if (state.isTransitioning) return;
+
+    if (isDesktopBook()) {
+      const currentChapter = Math.floor(state.storyIndex / 2);
+      const lastChapter = STORY_CONFIG.storyPages.length - 1;
+      if (currentChapter < lastChapter) {
+        renderStoryPage((currentChapter + 1) * 2, true, 'next');
+        return;
+      }
+    } else if (state.storyIndex < TOTAL_BOOK_PAGES - 1) {
+      renderStoryPage(state.storyIndex + 1, true, 'next');
+      return;
+    }
+
+    // Turn the final page smoothly with paper sound before entering the Question scene
+    state.isTransitioning = true;
+    setUsagiState(usagiStory, 'walking');
+    paperSoundEngine.playPageTurn('next');
+    if (bookTurningLeaf && !prefersReducedMotion) {
+      storyCard.classList.add('is-flipping');
+      bookTurningLeaf.classList.remove('flip-next', 'flip-prev');
+      if (bookTurnShadow) bookTurnShadow.classList.remove('is-casting');
+      void bookTurningLeaf.offsetWidth;
+      bookTurningLeaf.classList.add('flip-next');
+      if (bookTurnShadow) bookTurnShadow.classList.add('is-casting');
+      await wait(520);
+    }
+    await switchScene('question');
+    if (bookTurningLeaf) bookTurningLeaf.classList.remove('flip-next', 'flip-prev');
+    if (bookTurnShadow) bookTurnShadow.classList.remove('is-casting');
+    storyCard.classList.remove('is-flipping');
+    revealQuestionSequence();
+    state.isTransitioning = false;
+  };
+
   if (btnStoryBack) {
-    btnStoryBack.addEventListener('click', turnToPreviousChapter);
+    btnStoryBack.addEventListener('click', turnToPreviousPage);
   }
 
   if (btnContinue) {
-    btnContinue.addEventListener('click', turnToNextChapterOrQuestion);
+    btnContinue.addEventListener('click', turnToNextPageOrQuestion);
+  }
+
+  // Natural horizontal swipe gesture for flipping physical pages on mobile touchscreens
+  if (storyCard) {
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    storyCard.addEventListener(
+      'touchstart',
+      (e) => {
+        if (e.touches.length !== 1) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      },
+      { passive: true }
+    );
+
+    storyCard.addEventListener(
+      'touchend',
+      (e) => {
+        if (state.currentScene !== 'story' || state.isTransitioning) return;
+        if (!e.changedTouches || e.changedTouches.length !== 1) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) > 54 && Math.abs(dx) > Math.abs(dy) * 1.45) {
+          if (dx < 0) {
+            turnToNextPageOrQuestion();
+          } else {
+            turnToPreviousPage();
+          }
+        }
+      },
+      { passive: true }
+    );
   }
 
   // Natural keyboard book navigation (Left / Right arrow keys while reading)
   window.addEventListener('keydown', (e) => {
     if (state.currentScene !== 'story' || state.isTransitioning) return;
     if (e.key === 'ArrowRight') {
-      turnToNextChapterOrQuestion();
-    } else if (e.key === 'ArrowLeft' && state.storyIndex > 0) {
-      turnToPreviousChapter();
+      turnToNextPageOrQuestion();
+    } else if (e.key === 'ArrowLeft') {
+      turnToPreviousPage();
     }
   });
+
+  // Keep chapter/page indicator and uniform book dimensions synced across breakpoints & resizes
+  const handleBookLayoutChange = () => {
+    if (state.currentScene === 'story') {
+      updateStoryMetaChrome(state.storyIndex);
+      syncUniformBookHeight();
+    }
+  };
+  if (typeof desktopBookMedia.addEventListener === 'function') {
+    desktopBookMedia.addEventListener('change', handleBookLayoutChange);
+  } else if (typeof desktopBookMedia.addListener === 'function') {
+    desktopBookMedia.addListener(handleBookLayoutChange);
+  }
+
+  const scheduleBookHeightSync = () => {
+    if (state.currentScene !== 'story') return;
+    if (uniformHeightResizeTimer) window.clearTimeout(uniformHeightResizeTimer);
+    uniformHeightResizeTimer = window.setTimeout(() => {
+      uniformHeightResizeTimer = null;
+      syncUniformBookHeight();
+    }, 80);
+  };
+  window.addEventListener('resize', scheduleBookHeightSync);
+  window.addEventListener('orientationchange', scheduleBookHeightSync);
+
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      if (state.currentScene === 'story') {
+        syncUniformBookHeight();
+      }
+    });
+  }
 }
 
 /* ==========================================================================
@@ -1484,7 +1684,10 @@ const petalsEngine = (() => {
 })();
 
 /* ==========================================================================
-   13. "I LOVE YOU" FIREWORKS FINALE ENGINE (60fps Canvas, Reflections & Rim Glow)
+   13. CINEMATIC PYROTECHNIC FIREWORKS FINALE — "I LOVE YOU YANA"
+   Real ascending firework shells, luminous golden & warm-white star-shell
+   lettering, drifting backlit atmospheric smoke, falling ember trails,
+   surrounding framing bursts & water reflections — optimized for 60fps mobile.
    ========================================================================== */
 const fireworksEngine = (() => {
   const canvas = document.getElementById('fireworks-canvas');
@@ -1500,30 +1703,124 @@ const fireworksEngine = (() => {
     };
   }
 
-  const PALETTE = [
-    '#f8b4cb', // soft pastel pink
-    '#fbd988', // warm champagne gold
-    '#8ce6fa', // luminous sky cyan
-    '#c9b4f8', // soft lavender
-    '#f792a6', // warm rose coral
-    '#eef3ff', // bright silver-white
+  const AMBIENT_PALETTE = [
+    { hex: '#ffd984', sprite: 'gold' },     // champagne gold
+    { hex: '#fff4d6', sprite: 'warmWhite' },// warm pearl white
+    { hex: '#f8b4cb', sprite: 'rose' },     // romantic rose-gold pink
+    { hex: '#f2b866', sprite: 'amber' },    // deep brocade gold
+    { hex: '#9eddf8', sprite: 'sky' },      // delicate moonlit cyan
   ];
+
+  const LETTER_PALETTE = [
+    { hex: '#fffef9', sprite: 'warmWhite' },
+    { hex: '#fff4d2', sprite: 'warmWhite' },
+    { hex: '#ffe294', sprite: 'gold' },
+    { hex: '#f7c862', sprite: 'gold' },
+    { hex: '#eeb24c', sprite: 'amber' },
+  ];
+
+  // Pre-rendered offscreen glow & smoke sprites for buttery 60fps performance without shadowBlur
+  function makeRadialSprite(size, stops) {
+    const c = document.createElement('canvas');
+    c.width = size;
+    c.height = size;
+    const sctx = c.getContext('2d');
+    if (!sctx) return c;
+    const half = size / 2;
+    const g = sctx.createRadialGradient(half, half, 0, half, half, half);
+    stops.forEach(([offset, color]) => g.addColorStop(offset, color));
+    sctx.fillStyle = g;
+    sctx.fillRect(0, 0, size, size);
+    return c;
+  }
+
+  const SPRITES = {
+    warmWhite: makeRadialSprite(40, [
+      [0, 'rgba(255, 255, 252, 1)'],
+      [0.22, 'rgba(255, 246, 220, 0.85)'],
+      [0.52, 'rgba(255, 218, 134, 0.28)'],
+      [1, 'rgba(255, 198, 92, 0)'],
+    ]),
+    gold: makeRadialSprite(40, [
+      [0, 'rgba(255, 250, 226, 1)'],
+      [0.24, 'rgba(255, 215, 114, 0.84)'],
+      [0.56, 'rgba(238, 168, 62, 0.28)'],
+      [1, 'rgba(210, 128, 36, 0)'],
+    ]),
+    amber: makeRadialSprite(40, [
+      [0, 'rgba(255, 242, 200, 0.96)'],
+      [0.28, 'rgba(246, 184, 78, 0.78)'],
+      [0.6, 'rgba(214, 126, 44, 0.22)'],
+      [1, 'rgba(180, 92, 24, 0)'],
+    ]),
+    rose: makeRadialSprite(40, [
+      [0, 'rgba(255, 246, 250, 0.98)'],
+      [0.26, 'rgba(248, 178, 202, 0.78)'],
+      [0.58, 'rgba(218, 124, 158, 0.22)'],
+      [1, 'rgba(184, 86, 126, 0)'],
+    ]),
+    sky: makeRadialSprite(40, [
+      [0, 'rgba(248, 253, 255, 0.96)'],
+      [0.26, 'rgba(156, 224, 252, 0.72)'],
+      [0.58, 'rgba(92, 166, 232, 0.2)'],
+      [1, 'rgba(62, 122, 198, 0)'],
+    ]),
+    smokeCool: makeRadialSprite(84, [
+      [0, 'rgba(148, 166, 210, 0.16)'],
+      [0.45, 'rgba(116, 134, 178, 0.085)'],
+      [0.78, 'rgba(84, 98, 138, 0.025)'],
+      [1, 'rgba(60, 72, 108, 0)'],
+    ]),
+    smokeWarm: makeRadialSprite(84, [
+      [0, 'rgba(244, 212, 156, 0.19)'],
+      [0.42, 'rgba(186, 164, 154, 0.095)'],
+      [0.76, 'rgba(118, 118, 146, 0.028)'],
+      [1, 'rgba(72, 82, 118, 0)'],
+    ]),
+  };
 
   let running = false;
   let rafId = null;
   let width = 0;
   let height = 0;
   let autoLaunchTimer = null;
-  let glowStrength = 0.14;
-  let activeGlowColor = '#f8b4cb';
+  let glowStrength = 0.12;
+  let activeGlowColor = '#fbd988';
+  let textFadeState = 'hidden'; // 'hidden' | 'launching' | 'holding' | 'fading'
 
   const rockets = [];
   const sparks = [];
+  const embers = [];
+  const flashes = [];
+  const smokePuffs = [];
   const reflections = [];
   const textSparks = [];
+  const pendingTimers = [];
+
+  function scheduleTimer(fn, delayMs) {
+    const id = window.setTimeout(() => {
+      const idx = pendingTimers.indexOf(id);
+      if (idx !== -1) pendingTimers.splice(idx, 1);
+      if (running) fn();
+    }, delayMs);
+    pendingTimers.push(id);
+    return id;
+  }
+
+  function clearPendingTimers() {
+    while (pendingTimers.length > 0) {
+      window.clearTimeout(pendingTimers.pop());
+    }
+  }
+
+  function getHorizonY() {
+    const vistaH = Math.min(height * (width >= 760 ? 0.46 : 0.44), width >= 760 ? 360 : 330);
+    return height - vistaH * 0.58;
+  }
 
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const isMobile = window.innerWidth < 640;
+    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.75 : 2);
     width = window.innerWidth;
     height = window.innerHeight;
     canvas.width = Math.floor(width * dpr);
@@ -1540,46 +1837,107 @@ const fireworksEngine = (() => {
     }
   }
 
-  function addWaterReflection(x, color, radius = 90) {
+  function addWaterReflection(x, color, radius = 92) {
+    if (reflections.length > 18) reflections.shift();
     reflections.push({
       x,
       color,
       radius,
-      alpha: 0.42,
+      alpha: 0.44,
       phase: Math.random() * Math.PI * 2,
     });
   }
 
-  function launchRocket(targetX, targetY, scale = 1, colorOverride = null) {
-    const color = colorOverride || PALETTE[Math.floor(Math.random() * PALETTE.length)];
-    // Launch naturally from behind the distant water horizon
-    const vistaH = Math.min(height * (width >= 760 ? 0.46 : 0.44), width >= 760 ? 360 : 330);
-    const launchY = height - vistaH * 0.56;
-    const startX = targetX + (Math.random() - 0.5) * 70;
+  function spawnSmoke(x, y, radius = 44, warm = true, alpha = 0.58) {
+    const maxSmoke = width < 640 ? 24 : 38;
+    if (smokePuffs.length >= maxSmoke) smokePuffs.shift();
+    smokePuffs.push({
+      x: x + (Math.random() - 0.5) * 14,
+      y: y + (Math.random() - 0.5) * 12,
+      vx: (Math.random() - 0.38) * 0.22, // Subtle night breeze drift
+      vy: -(Math.random() * 0.14 + 0.04),
+      radius: radius * (0.75 + Math.random() * 0.45),
+      grow: 0.26 + Math.random() * 0.22,
+      alpha,
+      decay: 0.0024 + Math.random() * 0.0014,
+      warm,
+    });
+  }
+
+  function spawnEmber(x, y, color = '#ffe294', vx = 0, vy = 0.35) {
+    const maxEmbers = width < 640 ? 110 : 210;
+    if (embers.length >= maxEmbers) return;
+    embers.push({
+      x,
+      y,
+      px: x,
+      py: y,
+      vx: vx + (Math.random() - 0.5) * 0.35,
+      vy: vy + Math.random() * 0.32,
+      alpha: 0.82 + Math.random() * 0.18,
+      decay: 0.018 + Math.random() * 0.016,
+      size: 0.9 + Math.random() * 0.75,
+      color,
+    });
+  }
+
+  function launchRocket(targetX, targetY, scale = 1, paletteEntry = null, letterPayload = null) {
+    const pick =
+      paletteEntry || AMBIENT_PALETTE[Math.floor(Math.random() * AMBIENT_PALETTE.length)];
+    const launchY = getHorizonY();
+    const startX = letterPayload
+      ? targetX + (Math.random() - 0.5) * 34
+      : targetX + (Math.random() - 0.5) * 86;
+
+    const flightFrames = letterPayload
+      ? Math.round(30 + Math.random() * 8)
+      : Math.round(34 + Math.random() * 14);
+
     rockets.push({
+      startX,
+      startY: launchY,
       x: startX,
       y: launchY,
       tx: targetX,
       ty: targetY,
-      vx: (targetX - startX) * 0.026,
-      vy: (targetY - launchY) * 0.03,
-      color,
+      curveX: (Math.random() - 0.5) * (letterPayload ? 18 : 42),
+      frame: 0,
+      duration: flightFrames,
+      color: pick.hex,
+      sprite: pick.sprite,
       scale,
       trail: [],
+      letterPayload,
     });
   }
 
-  function explodeFirework(x, y, primaryColor, scale = 1) {
-    const secondaryColor = PALETTE[Math.floor(Math.random() * PALETTE.length)];
-    const count = Math.floor((width < 640 ? 48 : 74) * scale);
-    const isWillow = Math.random() < 0.32;
+  function explodeFirework(x, y, primaryColor, spriteKey = 'gold', scale = 1) {
+    const secondary = AMBIENT_PALETTE[Math.floor(Math.random() * AMBIENT_PALETTE.length)];
+    const baseCount = width < 640 ? 44 : 68;
+    const count = Math.floor(baseCount * scale);
+    const isWillow = Math.random() < 0.45;
 
-    pulseBacklight(primaryColor, Math.min(0.42, 0.22 + scale * 0.12));
-    addWaterReflection(x, primaryColor, 76 * scale);
+    pulseBacklight(primaryColor, Math.min(0.42, 0.2 + scale * 0.11));
+    addWaterReflection(x, primaryColor, 82 * scale);
+
+    // Bright pyrotechnic detonation flash
+    flashes.push({
+      x,
+      y,
+      radius: 12 * scale,
+      maxRadius: 72 * scale,
+      alpha: 0.82,
+      sprite: spriteKey,
+    });
+
+    // Atmospheric backlit smoke clouds expanding from burst
+    spawnSmoke(x, y, 42 * scale, true, 0.54);
+    spawnSmoke(x + (Math.random() - 0.5) * 26, y - 6, 36 * scale, false, 0.42);
 
     for (let i = 0; i < count; i += 1) {
-      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.13;
-      const speed = (Math.random() * 2.9 + 1.35) * scale;
+      const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.14;
+      const speed = (Math.random() * 3.1 + 1.25) * scale;
+      const useSec = i % 4 === 0;
       sparks.push({
         x,
         y,
@@ -1588,20 +1946,22 @@ const fireworksEngine = (() => {
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         alpha: 1,
-        decay: isWillow ? Math.random() * 0.008 + 0.006 : Math.random() * 0.011 + 0.0085,
-        gravity: isWillow ? 0.042 : 0.03,
-        drag: isWillow ? 0.968 : 0.973,
-        size: Math.random() * 1.9 + 1.1,
-        color: i % 3 === 0 ? secondaryColor : primaryColor,
+        decay: isWillow ? Math.random() * 0.0075 + 0.0058 : Math.random() * 0.0105 + 0.008,
+        gravity: isWillow ? 0.044 : 0.028,
+        drag: isWillow ? 0.968 : 0.974,
+        size: Math.random() * 1.85 + 1.05,
+        color: useSec ? secondary.hex : primaryColor,
+        sprite: useSec ? secondary.sprite : spriteKey,
         twinkle: Math.random() * Math.PI * 2,
+        shedsEmbers: isWillow && i % 3 === 0,
       });
     }
 
-    // Bright pearl-gold inner core ring
-    const coreCount = Math.floor(20 * scale);
+    // Incandescent warm-white inner star core
+    const coreCount = Math.floor(16 * scale);
     for (let i = 0; i < coreCount; i += 1) {
       const angle = (Math.PI * 2 * i) / coreCount;
-      const speed = (Math.random() * 1.15 + 0.55) * scale;
+      const speed = (Math.random() * 1.25 + 0.5) * scale;
       sparks.push({
         x,
         y,
@@ -1610,82 +1970,321 @@ const fireworksEngine = (() => {
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         alpha: 1,
-        decay: 0.015,
-        gravity: 0.02,
+        decay: 0.016,
+        gravity: 0.022,
         drag: 0.96,
-        size: 1.55,
-        color: '#fffaf2',
+        size: 1.5,
+        color: '#fffdf7',
+        sprite: 'warmWhite',
         twinkle: Math.random() * Math.PI * 2,
+        shedsEmbers: false,
       });
     }
   }
 
-  // Sample crisp "I LOVE YOU" points and form luminous firework sky letters
-  let textFadeState = 'hidden'; // 'hidden' | 'holding' | 'fading'
+  function detonateLetterShell(cx, cy, payload) {
+    const isHero = payload.isHero;
+    pulseBacklight('#ffd984', isHero ? 0.44 : 0.34);
+    addWaterReflection(cx, '#ffd984', isHero ? 128 : 96);
 
-  function revealLoveText() {
-    textSparks.length = 0;
-    textFadeState = 'holding';
+    // Bright golden-white sky flash at shell center
+    flashes.push({
+      x: cx,
+      y: cy,
+      radius: 16,
+      maxRadius: isHero ? 92 : 70,
+      alpha: 0.92,
+      sprite: 'warmWhite',
+    });
 
+    // Warm backlit atmospheric smoke cloud right behind the newly ignited letters
+    spawnSmoke(cx, cy, isHero ? 56 : 44, true, 0.64);
+    spawnSmoke(cx + (Math.random() - 0.5) * 28, cy + 6, isHero ? 42 : 34, false, 0.42);
+
+    // Radiating golden pyrotechnic blast sparks around the detonation point
+    const blastCount = width < 640 ? (isHero ? 18 : 13) : isHero ? 26 : 18;
+    for (let i = 0; i < blastCount; i += 1) {
+      const angle = (Math.PI * 2 * i) / blastCount + (Math.random() - 0.5) * 0.25;
+      const speed = (Math.random() * 2.2 + 0.9) * (isHero ? 1.15 : 0.92);
+      sparks.push({
+        x: cx,
+        y: cy,
+        px: cx,
+        py: cy,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        alpha: 0.95,
+        decay: 0.018 + Math.random() * 0.012,
+        gravity: 0.032,
+        drag: 0.955,
+        size: 1.35 + Math.random() * 0.7,
+        color: i % 2 === 0 ? '#fff6dc' : '#ffd272',
+        sprite: i % 2 === 0 ? 'warmWhite' : 'gold',
+        twinkle: Math.random() * Math.PI * 2,
+        shedsEmbers: i % 3 === 0,
+      });
+    }
+
+    // Spawn the golden & warm-white star-shell particles that bloom into the letterform
+    const sparkSizeBase = width < 480 ? 1.45 : width < 760 ? 1.7 : 2.0;
+    for (let i = 0; i < payload.points.length; i += 1) {
+      const pt = payload.points[i];
+      const pick = LETTER_PALETTE[Math.floor(Math.random() * LETTER_PALETTE.length)];
+      const dx = pt.tx - cx;
+      const dy = pt.ty - cy;
+      // Start near detonation core and expand naturally into exact glyph coordinates
+      const startSpread = 0.08 + Math.random() * 0.08;
+      textSparks.push({
+        x: cx + dx * startSpread + (Math.random() - 0.5) * 4,
+        y: cy + dy * startSpread + (Math.random() - 0.5) * 4,
+        px: cx,
+        py: cy,
+        tx: pt.tx + (Math.random() - 0.5) * 1.15,
+        ty: pt.ty + (Math.random() - 0.5) * 1.15,
+        vx: (Math.random() - 0.5) * 0.26,
+        vy: Math.random() * 0.18 + 0.06,
+        ease: 0.085 + Math.random() * 0.038,
+        size: sparkSizeBase * (isHero ? 1.12 : 0.98) * (0.85 + Math.random() * 0.38),
+        color: pick.hex,
+        sprite: pick.sprite,
+        phase: Math.random() * Math.PI * 2,
+        alpha: 0.2,
+        age: 0,
+        fadeRate: 0.0022 + Math.random() * 0.0024,
+        isHero,
+      });
+    }
+  }
+
+  // Sample crisp individual word/letter shells for "I LOVE YOU" (line 1) & "YANA" (line 2)
+  function buildMessageShellPlan() {
     const off = document.createElement('canvas');
     const offCtx = off.getContext('2d');
-    if (!offCtx) return;
+    if (!offCtx) return [];
 
-    const sampleW = Math.min(Math.max(Math.floor(width * 0.9), 320), 880);
-    const sampleH = Math.max(Math.floor(sampleW * 0.3), 120);
-    off.width = sampleW;
-    off.height = sampleH;
+    const horizonY = getHorizonY();
+    const topSafe = width < 640 ? 64 : 74;
+    const availableSkyH = Math.max(170, horizonY - topSafe - 24);
+    const maxLine1W = Math.min(width * 0.88, 820);
+    const maxLine2W = Math.min(width * 0.78, 660);
 
-    const fontSize = Math.floor(sampleW * 0.155);
-    offCtx.clearRect(0, 0, sampleW, sampleH);
-    offCtx.fillStyle = '#ffffff';
-    offCtx.textAlign = 'center';
-    offCtx.textBaseline = 'middle';
-    offCtx.font = `600 ${fontSize}px "Plus Jakarta Sans", -apple-system, sans-serif`;
-    offCtx.fillText('I LOVE YOU', sampleW / 2, sampleH / 2);
+    // Measure text with crisp manual character tracking for unmistakable sky-letter legibility
+    function measureTracked(text, fontPx, tracking) {
+      offCtx.font = `700 ${fontPx}px "Plus Jakarta Sans", -apple-system, sans-serif`;
+      let total = 0;
+      for (let i = 0; i < text.length; i += 1) {
+        total += offCtx.measureText(text[i]).width;
+        if (i < text.length - 1) total += tracking;
+      }
+      return total;
+    }
 
-    const imgData = offCtx.getImageData(0, 0, sampleW, sampleH).data;
-    const step = width < 520 ? 3 : 4;
-    const offsetX = (width - sampleW) / 2;
-    // Frame cleanly in the upper-center open night sky above the seated couple
-    const offsetY = Math.max(height * 0.29 - sampleH / 2, 64);
+    function fitFontSize(text, targetW, minPx, maxPx, trackRatio) {
+      let size = maxPx;
+      while (size > minPx) {
+        const w = measureTracked(text, size, size * trackRatio);
+        if (w <= targetW) break;
+        size -= 2;
+      }
+      return size;
+    }
 
-    const originX = width * 0.5;
-    const originY = offsetY + sampleH * 0.5;
-    explodeFirework(originX, originY, '#fbd988', 1.48);
-    pulseBacklight('#f8b4cb', 0.42);
-    addWaterReflection(originX, '#fbd988', 150);
+    const line1Text = 'I LOVE YOU';
+    const line2Text = 'YANA';
+    const trackRatio1 = 0.09;
+    const trackRatio2 = 0.22;
 
-    const textColors = ['#fffaf0', '#f8b4cb', '#fbd988', '#c9b4f8', '#9ee6fa'];
+    const maxFromH1 = Math.floor(availableSkyH * 0.31);
+    const fontSize1 = fitFontSize(line1Text, maxLine1W, 24, Math.min(72, maxFromH1), trackRatio1);
+    const maxFromH2 = Math.floor(availableSkyH * 0.42);
+    const fontSize2 = fitFontSize(
+      line2Text,
+      maxLine2W,
+      Math.round(fontSize1 * 1.12),
+      Math.min(92, Math.max(fontSize1 + 10, maxFromH2)),
+      trackRatio2
+    );
 
-    for (let y = 0; y < sampleH; y += step) {
-      for (let x = 0; x < sampleW; x += step) {
-        const alphaIdx = (y * sampleW + x) * 4 + 3;
-        if (imgData[alphaIdx] > 140) {
-          const tx = offsetX + x;
-          const ty = offsetY + y;
-          const angle = Math.atan2(ty - originY, tx - originX);
-          const dist = Math.hypot(tx - originX, ty - originY);
-          textSparks.push({
-            x: originX + Math.cos(angle) * (dist * 0.14),
-            y: originY + Math.sin(angle) * (dist * 0.14),
-            tx,
-            ty,
-            vy: Math.random() * 0.24 + 0.09,
-            vx: (Math.random() - 0.5) * 0.18,
-            size: width < 520 ? 1.65 : 2.15,
-            color: textColors[Math.floor(Math.random() * textColors.length)],
-            phase: Math.random() * Math.PI * 2,
-            alpha: 0,
-            fadeRate: Math.random() * 0.0024 + 0.0019,
-          });
+    const lineGap = Math.max(fontSize1 * 0.44, 18);
+    const totalBlockH = fontSize1 + lineGap + fontSize2;
+    const blockTop = topSafe + Math.max(6, (availableSkyH - totalBlockH) * 0.42);
+    const line1Y = blockTop + fontSize1 * 0.5;
+    const line2Y = blockTop + fontSize1 + lineGap + fontSize2 * 0.52;
+
+    const step = width < 480 ? 3 : width < 900 ? 3 : 4;
+
+    function sampleSegment(text, startX, centerY, fontPx, tracking, isHero) {
+      const segW = Math.ceil(measureTracked(text, fontPx, tracking) + 28);
+      const segH = Math.ceil(fontPx * 1.48);
+      off.width = Math.max(24, segW);
+      off.height = Math.max(24, segH);
+
+      offCtx.clearRect(0, 0, off.width, off.height);
+      offCtx.fillStyle = '#ffffff';
+      offCtx.textBaseline = 'middle';
+      offCtx.textAlign = 'left';
+      offCtx.font = `700 ${fontPx}px "Plus Jakarta Sans", -apple-system, sans-serif`;
+
+      let cursorX = 14;
+      for (let i = 0; i < text.length; i += 1) {
+        const ch = text[i];
+        offCtx.fillText(ch, cursorX, segH / 2);
+        cursorX += offCtx.measureText(ch).width + tracking;
+      }
+
+      const data = offCtx.getImageData(0, 0, off.width, off.height).data;
+      const points = [];
+      const worldLeft = startX - 14;
+      const worldTop = centerY - segH / 2;
+
+      for (let y = 0; y < off.height; y += step) {
+        for (let x = 0; x < off.width; x += step) {
+          if (data[(y * off.width + x) * 4 + 3] > 135) {
+            points.push({
+              tx: worldLeft + x,
+              ty: worldTop + y,
+            });
+          }
         }
       }
+
+      return {
+        label: text,
+        cx: startX + (segW - 28) * 0.5,
+        cy: centerY,
+        points,
+        isHero,
+      };
     }
+
+    const plan = [];
+
+    // Compute exact horizontal x-positions for Wave 1: "I", "LOVE", "YOU"
+    const track1 = fontSize1 * trackRatio1;
+    const totalW1 = measureTracked(line1Text, fontSize1, track1);
+    let cursor1 = (width - totalW1) / 2;
+    const line1Parts = [
+      { text: 'I', delay: 0 },
+      { text: ' ', delay: null },
+      { text: 'LOVE', delay: 380 },
+      { text: ' ', delay: null },
+      { text: 'YOU', delay: 780 },
+    ];
+
+    line1Parts.forEach((part) => {
+      const w = measureTracked(part.text, fontSize1, track1);
+      if (part.delay !== null) {
+        const seg = sampleSegment(part.text, cursor1, line1Y, fontSize1, track1, false);
+        plan.push({ ...seg, delay: part.delay });
+      }
+      cursor1 += w + track1;
+    });
+
+    // Compute exact horizontal x-positions for Wave 2: "Y", "A", "N", "A"
+    const track2 = fontSize2 * trackRatio2;
+    const totalW2 = measureTracked(line2Text, fontSize2, track2);
+    let cursor2 = (width - totalW2) / 2;
+    const yanaDelays = [1460, 1620, 1780, 1940];
+
+    for (let i = 0; i < line2Text.length; i += 1) {
+      const ch = line2Text[i];
+      const w = measureTracked(ch, fontSize2, track2);
+      const seg = sampleSegment(ch, cursor2, line2Y, fontSize2, track2, true);
+      plan.push({ ...seg, delay: yanaDelays[i] });
+      cursor2 += w + track2;
+    }
+
+    return plan;
+  }
+
+  function launchFramingFirework(side = 'any', scale = 0.95) {
+    const horizonY = getHorizonY();
+    let tx;
+    if (side === 'left') {
+      tx = width * (0.09 + Math.random() * 0.14);
+    } else if (side === 'right') {
+      tx = width * (0.77 + Math.random() * 0.14);
+    } else {
+      tx =
+        Math.random() < 0.5
+          ? width * (0.08 + Math.random() * 0.17)
+          : width * (0.75 + Math.random() * 0.17);
+    }
+    const ty = Math.max(58, Math.min(horizonY - 90, height * (0.12 + Math.random() * 0.26)));
+    launchRocket(tx, ty, scale);
+  }
+
+  function revealLoveText(instant = false) {
+    clearPendingTimers();
+    textSparks.length = 0;
+    const plan = buildMessageShellPlan();
+    if (!plan.length) return;
+
+    if (instant || prefersReducedMotion) {
+      textFadeState = 'holding';
+      plan.forEach((seg) => {
+        const sparkSizeBase = width < 480 ? 1.5 : width < 760 ? 1.75 : 2.05;
+        seg.points.forEach((pt) => {
+          const pick = LETTER_PALETTE[Math.floor(Math.random() * LETTER_PALETTE.length)];
+          textSparks.push({
+            x: pt.tx,
+            y: pt.ty,
+            px: pt.tx,
+            py: pt.ty,
+            tx: pt.tx,
+            ty: pt.ty,
+            vx: (Math.random() - 0.5) * 0.2,
+            vy: Math.random() * 0.16 + 0.06,
+            ease: 0.1,
+            size: sparkSizeBase * (seg.isHero ? 1.12 : 0.98),
+            color: pick.hex,
+            sprite: pick.sprite,
+            phase: Math.random() * Math.PI * 2,
+            alpha: 1,
+            age: 40,
+            fadeRate: 0.0022 + Math.random() * 0.002,
+            isHero: seg.isHero,
+          });
+        });
+      });
+      return;
+    }
+
+    textFadeState = 'holding';
+
+    // Launch each letter/word shell sequentially from behind the bay horizon
+    plan.forEach((seg) => {
+      scheduleTimer(() => {
+        launchRocket(
+          seg.cx,
+          seg.cy,
+          seg.isHero ? 1.2 : 1.0,
+          { hex: '#ffe394', sprite: 'gold' },
+          seg
+        );
+      }, seg.delay);
+    });
+
+    // Celebratory framing fireworks exploding around & behind the message as it blooms
+    scheduleTimer(() => launchFramingFirework('left', 1.05), 1120);
+    scheduleTimer(() => launchFramingFirework('right', 1.05), 1320);
+    scheduleTimer(() => {
+      launchFramingFirework('left', 1.22);
+      launchFramingFirework('right', 1.22);
+    }, 2380);
+    scheduleTimer(() => {
+      // Soft high-sky golden willow directly behind/above the message
+      launchRocket(width * 0.5, Math.max(54, height * 0.12), 1.15, {
+        hex: '#ffd984',
+        sprite: 'gold',
+      });
+    }, 3450);
+    scheduleTimer(() => launchFramingFirework('any', 1.0), 4750);
   }
 
   function beginGentleFade() {
     textFadeState = 'fading';
+    clearPendingTimers();
     if (autoLaunchTimer) {
       window.clearInterval(autoLaunchTimer);
       autoLaunchTimer = null;
@@ -1694,58 +2293,121 @@ const fireworksEngine = (() => {
 
   function launchSalvo(count = 3, scale = 1) {
     for (let i = 0; i < count; i += 1) {
-      window.setTimeout(() => {
-        if (!running) return;
-        const tx = width * (0.16 + Math.random() * 0.68);
-        const ty = height * (0.14 + Math.random() * 0.28);
+      scheduleTimer(() => {
+        const tx = width * (0.14 + Math.random() * 0.72);
+        const ty = height * (0.13 + Math.random() * 0.27);
         launchRocket(tx, ty, scale);
-      }, i * 310);
+      }, i * 320);
     }
   }
 
   function loop() {
     if (!running) return;
 
-    // Gentle trail fade without muddying transparent atmospheric night backdrop
+    // Gentle canvas persistence fade for organic luminous firework trails
     ctx.globalCompositeOperation = 'destination-out';
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.21)';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
     ctx.fillRect(0, 0, width, height);
-    ctx.globalCompositeOperation = 'lighter';
 
-    // Gently decay rim backlight toward serene starlight baseline
-    const baseGlow = textFadeState === 'holding' ? 0.28 : 0.1;
+    // Gently decay atmospheric rim backlight toward warm starlight baseline
+    const baseGlow = textFadeState === 'holding' ? 0.3 : 0.1;
     if (glowStrength > baseGlow) {
-      glowStrength = Math.max(baseGlow, glowStrength - 0.0045);
+      glowStrength = Math.max(baseGlow, glowStrength - 0.0042);
       if (finaleEl) {
         finaleEl.style.setProperty('--fw-glow-alpha', glowStrength.toFixed(3));
       }
     }
 
-    // Rockets ascending naturally from horizon
-    for (let i = rockets.length - 1; i >= 0; i -= 1) {
-      const r = rockets[i];
-      r.trail.push({ x: r.x, y: r.y });
-      if (r.trail.length > 9) r.trail.shift();
+    // 1. Atmospheric Backlit Pyrotechnic Smoke Clouds (source-over behind bright sparks)
+    ctx.globalCompositeOperation = 'source-over';
+    for (let i = smokePuffs.length - 1; i >= 0; i -= 1) {
+      const sm = smokePuffs[i];
+      sm.x += sm.vx;
+      sm.y += sm.vy;
+      sm.radius += sm.grow;
+      sm.alpha -= sm.decay;
 
-      r.x += r.vx;
-      r.y += r.vy;
-
-      for (let t = 0; t < r.trail.length; t += 1) {
-        const pt = r.trail[t];
-        ctx.fillStyle = r.color;
-        ctx.globalAlpha = (t / r.trail.length) * 0.65;
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 1.8, 0, Math.PI * 2);
-        ctx.fill();
+      if (sm.alpha <= 0.01) {
+        smokePuffs.splice(i, 1);
+        continue;
       }
 
-      if (Math.hypot(r.tx - r.x, r.ty - r.y) < 16 || r.y <= r.ty) {
-        explodeFirework(r.x, r.y, r.color, r.scale);
+      const sprite = sm.warm ? SPRITES.smokeWarm : SPRITES.smokeCool;
+      const d = sm.radius * 2;
+      ctx.globalAlpha = sm.alpha;
+      ctx.drawImage(sprite, sm.x - sm.radius, sm.y - sm.radius, d, d);
+    }
+
+    // Switch to additive light blending for realistic glowing pyrotechnics
+    ctx.globalCompositeOperation = 'lighter';
+
+    // 2. Detonation Sky Flashes
+    for (let i = flashes.length - 1; i >= 0; i -= 1) {
+      const fl = flashes[i];
+      fl.radius += (fl.maxRadius - fl.radius) * 0.24;
+      fl.alpha -= 0.065;
+      if (fl.alpha <= 0.02) {
+        flashes.splice(i, 1);
+        continue;
+      }
+      const sp = SPRITES[fl.sprite] || SPRITES.warmWhite;
+      const d = fl.radius * 2;
+      ctx.globalAlpha = fl.alpha;
+      ctx.drawImage(sp, fl.x - fl.radius, fl.y - fl.radius, d, d);
+    }
+
+    // 3. Ascending Firework Shells (Natural Decelerating Arc + Glowing Spark Trail)
+    for (let i = rockets.length - 1; i >= 0; i -= 1) {
+      const r = rockets[i];
+      r.frame += 1;
+      const t = Math.min(1, r.frame / r.duration);
+      const easeOut = 1 - Math.pow(1 - t, 2.15);
+
+      r.trail.push({ x: r.x, y: r.y });
+      if (r.trail.length > 11) r.trail.shift();
+
+      r.x = r.startX + (r.tx - r.startX) * t + Math.sin(t * Math.PI) * r.curveX;
+      r.y = r.startY + (r.ty - r.startY) * easeOut;
+
+      // Shed tiny trailing ember sparks & wispy smoke ribbon during ascent
+      if (Math.random() < 0.65) {
+        spawnEmber(r.x, r.y, '#ffe5a3', (Math.random() - 0.5) * 0.4, 0.45);
+      }
+      if (r.frame % 6 === 0) {
+        spawnSmoke(r.x, r.y + 4, 15, false, 0.22);
+      }
+
+      // Luminous tapering comet tail
+      for (let k = 1; k < r.trail.length; k += 1) {
+        const p0 = r.trail[k - 1];
+        const p1 = r.trail[k];
+        const frac = k / r.trail.length;
+        ctx.strokeStyle = r.color;
+        ctx.globalAlpha = frac * 0.78;
+        ctx.lineWidth = 0.9 + frac * 1.9;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(p0.x, p0.y);
+        ctx.lineTo(p1.x, p1.y);
+        ctx.stroke();
+      }
+
+      // Bright ascending shell head glow
+      const headSprite = SPRITES[r.sprite] || SPRITES.gold;
+      ctx.globalAlpha = 0.95;
+      ctx.drawImage(headSprite, r.x - 9, r.y - 9, 18, 18);
+
+      if (t >= 1) {
+        if (r.letterPayload) {
+          detonateLetterShell(r.tx, r.ty, r.letterPayload);
+        } else {
+          explodeFirework(r.x, r.y, r.color, r.sprite, r.scale);
+        }
         rockets.splice(i, 1);
       }
     }
 
-    // Burst Sparks
+    // 4. Burst Sparks (Surrounding & Detonation Explosions)
     for (let i = sparks.length - 1; i >= 0; i -= 1) {
       const s = sparks[i];
       s.px = s.x;
@@ -1755,32 +2417,72 @@ const fireworksEngine = (() => {
       s.x += s.vx;
       s.y += s.vy;
       s.alpha -= s.decay;
-      s.twinkle += 0.22;
+      s.twinkle += 0.24;
 
-      if (s.alpha <= 0.01) {
+      if (s.alpha <= 0.015) {
         sparks.splice(i, 1);
         continue;
       }
 
+      if (s.shedsEmbers && s.alpha > 0.35 && Math.random() < 0.16) {
+        spawnEmber(s.x, s.y, s.color, s.vx * 0.15, 0.3);
+      }
+
       const flicker = 0.72 + Math.sin(s.twinkle) * 0.28;
+      const a = Math.max(0, s.alpha * flicker);
+
       ctx.strokeStyle = s.color;
-      ctx.globalAlpha = Math.max(0, s.alpha * flicker);
+      ctx.globalAlpha = a;
       ctx.lineWidth = s.size;
       ctx.lineCap = 'round';
       ctx.beginPath();
       ctx.moveTo(s.px, s.py);
       ctx.lineTo(s.x, s.y);
       ctx.stroke();
+
+      // Subtle glowing spark head
+      if (a > 0.3) {
+        const sp = SPRITES[s.sprite] || SPRITES.gold;
+        const r = s.size * 3.1;
+        ctx.globalAlpha = a * 0.55;
+        ctx.drawImage(sp, s.x - r, s.y - r, r * 2, r * 2);
+      }
     }
 
-    // Subtle Shimmering Water Reflections Below Horizon
+    // 5. Fine Drifting Golden Micro-Embers (Shed by Rockets & Burning Letter Sparks)
+    for (let i = embers.length - 1; i >= 0; i -= 1) {
+      const em = embers[i];
+      em.px = em.x;
+      em.py = em.y;
+      em.vx *= 0.985;
+      em.vy += 0.028;
+      em.x += em.vx;
+      em.y += em.vy;
+      em.alpha -= em.decay;
+
+      if (em.alpha <= 0.02) {
+        embers.splice(i, 1);
+        continue;
+      }
+
+      ctx.strokeStyle = em.color;
+      ctx.globalAlpha = em.alpha * 0.78;
+      ctx.lineWidth = em.size;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(em.px, em.py);
+      ctx.lineTo(em.x, em.y);
+      ctx.stroke();
+    }
+
+    // 6. Shimmering Water Reflections Below Horizon
     const vistaH = Math.min(height * (width >= 760 ? 0.46 : 0.44), width >= 760 ? 360 : 330);
     const waterTop = height - vistaH * 0.6;
     const waterBand = vistaH * 0.34;
     for (let i = reflections.length - 1; i >= 0; i -= 1) {
       const rf = reflections[i];
       rf.phase += 0.08;
-      rf.alpha -= 0.0055;
+      rf.alpha -= 0.0052;
       if (rf.alpha <= 0.01) {
         reflections.splice(i, 1);
         continue;
@@ -1794,39 +2496,70 @@ const fireworksEngine = (() => {
       }
     }
 
-    // Sparkling "I LOVE YOU" Firework Sky Letters (Shimmers clearly, then fades gracefully)
+    // 7. Pyrotechnic Sky Lettering — "I LOVE YOU, YANA" (Golden & Warm-White Sparks)
     for (let i = textSparks.length - 1; i >= 0; i -= 1) {
       const ts = textSparks[i];
-      ts.phase += 0.085;
+      ts.age += 1;
+      ts.phase += 0.11;
+      ts.px = ts.x;
+      ts.py = ts.y;
 
       if (textFadeState === 'holding') {
-        ts.x += (ts.tx - ts.x) * 0.095;
-        ts.y += (ts.ty - ts.y) * 0.095;
-        ts.alpha = Math.min(1, ts.alpha + 0.045);
+        ts.x += (ts.tx - ts.x) * ts.ease;
+        ts.y += (ts.ty - ts.y) * ts.ease;
+        ts.alpha = Math.min(1, ts.alpha + 0.06);
+
+        // Occasional delicate downward-drifting golden embers burning off the sky letters
+        if (ts.age > 18 && Math.random() < (width < 640 ? 0.0035 : 0.005)) {
+          spawnEmber(ts.x, ts.y, ts.color, (Math.random() - 0.5) * 0.25, 0.38);
+        }
       } else if (textFadeState === 'fading') {
+        ts.vy += 0.008; // Natural gentle gravity drift as burning stars fade out
         ts.x += ts.vx;
         ts.y += ts.vy;
         ts.alpha -= ts.fadeRate;
-        if (ts.alpha <= 0.01) {
+        if (ts.alpha <= 0.015) {
           textSparks.splice(i, 1);
           continue;
         }
       }
 
-      const shimmer = 0.75 + Math.sin(ts.phase) * 0.25;
-      const jitterX = Math.sin(ts.phase * 1.2) * 0.35;
-      const jitterY = Math.cos(ts.phase * 1.1) * 0.35;
+      // Real firework-star sparkle crackle (golden halo + bright incandescent pinpoint core)
+      const shimmer = 0.72 + Math.sin(ts.phase) * 0.22 + (Math.sin(ts.phase * 2.7) > 0.9 ? 0.18 : 0);
+      const jitterX = Math.sin(ts.phase * 1.15) * 0.32;
+      const jitterY = Math.cos(ts.phase * 1.05) * 0.32;
+      const drawX = ts.x + jitterX;
+      const drawY = ts.y + jitterY;
+      const a = Math.max(0, Math.min(1, ts.alpha * shimmer));
 
-      ctx.fillStyle = ts.color;
-      ctx.globalAlpha = Math.max(0, ts.alpha * shimmer);
+      // During rapid outward burst from detonation center, draw subtle radial spark streak
+      if (ts.age < 16) {
+        ctx.strokeStyle = ts.color;
+        ctx.globalAlpha = a * 0.72;
+        ctx.lineWidth = ts.size * 0.9;
+        ctx.beginPath();
+        ctx.moveTo(ts.px, ts.py);
+        ctx.lineTo(drawX, drawY);
+        ctx.stroke();
+      }
+
+      // Soft golden/warm-white pyrotechnic bloom halo
+      const haloSprite = SPRITES[ts.sprite] || SPRITES.gold;
+      const haloR = ts.size * (ts.isHero ? 3.9 : 3.4);
+      ctx.globalAlpha = a * 0.62;
+      ctx.drawImage(haloSprite, drawX - haloR, drawY - haloR, haloR * 2, haloR * 2);
+
+      // Crisp incandescent pinpoint center
+      ctx.fillStyle = '#fffef9';
+      ctx.globalAlpha = a;
       ctx.beginPath();
-      ctx.arc(ts.x + jitterX, ts.y + jitterY, ts.size, 0, Math.PI * 2);
+      ctx.arc(drawX, drawY, ts.size * 0.62, 0, Math.PI * 2);
       ctx.fill();
     }
 
-    // Keep soft shimmer on the water while "I LOVE YOU" glows in the sky
-    if (textFadeState === 'holding' && Math.random() < 0.08) {
-      addWaterReflection(width * (0.38 + Math.random() * 0.24), '#fbd988', 110);
+    // Keep soft warm-gold shimmer across the calm bay water while "I LOVE YOU, YANA" glows
+    if (textFadeState === 'holding' && textSparks.length > 0 && Math.random() < 0.09) {
+      addWaterReflection(width * (0.3 + Math.random() * 0.4), '#ffd984', 120);
     }
 
     ctx.globalAlpha = 1;
@@ -1838,16 +2571,25 @@ const fireworksEngine = (() => {
     if (autoLaunchTimer) window.clearInterval(autoLaunchTimer);
     autoLaunchTimer = window.setInterval(() => {
       if (!running) return;
-      const tx = width * (0.14 + Math.random() * 0.72);
-      const ty = height * (0.13 + Math.random() * 0.29);
-      launchRocket(tx, ty, 0.85 + Math.random() * 0.38);
+      if (textFadeState === 'holding') {
+        // Keep ambient fireworks framing around the sides so they complement "I LOVE YOU, YANA"
+        launchFramingFirework('any', 0.85 + Math.random() * 0.3);
+      } else {
+        const tx = width * (0.14 + Math.random() * 0.72);
+        const ty = height * (0.13 + Math.random() * 0.28);
+        launchRocket(tx, ty, 0.88 + Math.random() * 0.34);
+      }
     }, 1550);
   }
 
   function start() {
+    clearPendingTimers();
     resize();
     rockets.length = 0;
     sparks.length = 0;
+    embers.length = 0;
+    flashes.length = 0;
+    smokePuffs.length = 0;
     reflections.length = 0;
     textSparks.length = 0;
     textFadeState = 'hidden';
@@ -1861,25 +2603,36 @@ const fireworksEngine = (() => {
       loop();
       startAmbientLoop();
     } else {
-      revealLoveText();
+      revealLoveText(true);
       ctx.clearRect(0, 0, width, height);
+      ctx.globalCompositeOperation = 'lighter';
       textSparks.forEach((ts) => {
-        ctx.fillStyle = ts.color;
+        const haloSprite = SPRITES[ts.sprite] || SPRITES.gold;
+        const haloR = ts.size * 3.4;
+        ctx.globalAlpha = 0.6;
+        ctx.drawImage(haloSprite, ts.tx - haloR, ts.ty - haloR, haloR * 2, haloR * 2);
+        ctx.fillStyle = '#fffef9';
+        ctx.globalAlpha = 1;
         ctx.beginPath();
-        ctx.arc(ts.tx, ts.ty, ts.size, 0, Math.PI * 2);
+        ctx.arc(ts.tx, ts.ty, ts.size * 0.62, 0, Math.PI * 2);
         ctx.fill();
       });
+      ctx.globalCompositeOperation = 'source-over';
     }
   }
 
   function stop() {
     running = false;
     textFadeState = 'hidden';
+    clearPendingTimers();
     if (rafId) cancelAnimationFrame(rafId);
     if (autoLaunchTimer) window.clearInterval(autoLaunchTimer);
     autoLaunchTimer = null;
     rockets.length = 0;
     sparks.length = 0;
+    embers.length = 0;
+    flashes.length = 0;
+    smokePuffs.length = 0;
     reflections.length = 0;
     textSparks.length = 0;
     ctx.clearRect(0, 0, width, height);
@@ -1889,7 +2642,7 @@ const fireworksEngine = (() => {
     if (running) {
       const wasHolding = textFadeState === 'holding' && textSparks.length > 0;
       resize();
-      if (wasHolding) revealLoveText();
+      if (wasHolding) revealLoveText(true);
     }
   });
 
@@ -2029,26 +2782,26 @@ async function runWaitTheresMoreAndFinalSequence(skipFadeOut = false) {
   if (runId !== finalSequenceRunId) return;
   fireworksEngine.launchSalvo(4, 1.24);
 
-  // Grand "I LOVE YOU" Fireworks Formation in the Wide Center Sky (Single Final Reveal)
-  await wait(1800);
+  // Grand "I LOVE YOU YANA" Pyrotechnic Formation in the Deep Navy Sky (Gradual Choreographed Reveal)
+  await wait(1650);
   if (runId !== finalSequenceRunId) return;
   fireworksEngine.revealLoveText();
   finaleScene.classList.add('gaze-up');
 
-  // Usagi gently appears near the corner while "I LOVE YOU" shines in the sky
-  await wait(1150);
+  // Usagi gently appears near the corner as "YANA" bursts beneath "I LOVE YOU"
+  await wait(2450);
   if (runId !== finalSequenceRunId) return;
   finaleScene.classList.add('show-usagi');
 
-  // Hold the sparkling "I LOVE YOU" formation clearly readable for ~6.5 seconds
-  await wait(6500);
+  // Hold the glowing "I LOVE YOU YANA" fireworks clearly readable alongside framing bursts (~6.2s after full bloom)
+  await wait(6200);
   if (runId !== finalSequenceRunId) return;
 
-  // Allow particles to drift & fade naturally into the peaceful night sky
+  // Allow golden particles to drift & fade naturally into the peaceful night sky
   fireworksEngine.beginGentleFade();
 
   // Smooth cinematic fade-out after the final fireworks naturally dissolve
-  await wait(2600);
+  await wait(2800);
   if (runId !== finalSequenceRunId) return;
   finaleScene.classList.add('phase-fadeout');
 
