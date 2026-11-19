@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 390 390"
+     width="390"
+     height="390">
+
+  <defs>
+    <style>
+      .line {
+        stroke: #482820;
+        stroke-width: 6.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .body { fill: #fff0bf; }
+      .inner-ear { fill: #f5a9b9; }
+      .cheek { fill: #f3a0b2; }
+      .dark { fill: #482820; }
+    </style>
+  </defs>
+
+  <!-- LEFT EAR -->
+  <g id="left-ear">
+    <path class="body line"
+      d="M153 119
+         C149 99 149 67 151 44
+         C152 29 157 19 166 20
+         C179 19 184 32 186 48
+         C190 70 189 99 188 119
+         Z"/>
+    <path class="inner-ear"
+      d="M159 111
+         C155 86 157 48 163 31
+         C166 24 172 25 176 34
+         C183 56 183 89 181 112
+         Z"/>
+  </g>
+
+  <!-- RIGHT EAR -->
+  <g id="right-ear">
+    <path class="body line"
+      d="M211 119
+         C209 91 209 57 213 35
+         C216 19 223 18 231 21
+         C243 25 245 45 246 66
+         C248 88 245 106 243 119
+         Z"/>
+    <path class="inner-ear"
+      d="M218 111
+         C215 81 216 48 222 30
+         C225 24 232 25 236 36
+         C243 57 240 88 236 112
+         Z"/>
+  </g>
+
+  <!-- MAIN BODY AND HEAD -->
+  <path id="usagi-body" class="body line"
+    d="M145 118
+       C117 124 93 138 79 160
+       C64 183 64 211 72 233
+       C77 250 89 261 105 270
+
+       L104 290
+       C102 301 105 307 111 307
+       C116 306 117 300 117 294
+
+       L117 331
+       C117 337 120 342 127 342
+       C164 355 225 356 263 342
+
+       C270 341 273 337 274 330
+       L276 294
+
+       C277 302 280 307 285 307
+       C291 307 294 301 294 291
+       L293 270
+
+       C310 259 320 242 323 220
+       C327 195 317 165 298 146
+       C284 132 265 122 244 118
+       C235 116 225 117 215 117
+       L188 117
+       C177 117 165 116 153 117
+       Z"/>
+
+  <!-- LEFT ARM -->
+  <path class="body line"
+    d="M105 269
+       C97 269 96 279 97 290
+       C97 299 99 304 105 305
+       C111 306 114 301 114 294"/>
+
+  <!-- RIGHT ARM -->
+  <path class="body line"
+    d="M279 273
+       C279 283 277 294 280 301
+       C282 306 288 307 292 302
+       C296 295 297 280 293 274
+       C290 269 285 268 281 270"/>
+
+  <!-- LEGS -->
+  <path class="body line"
+    d="M120 337
+       C119 348 119 359 122 368
+       C124 374 132 373 135 367
+       C138 359 137 348 138 342"/>
+
+  <path class="body line"
+    d="M253 343
+       C254 353 253 364 258 370
+       C262 375 270 372 273 366
+       C276 357 274 346 274 337"/>
+
+  <!-- LEFT EYEBROW / CURVED EXPRESSION -->
+  <path class="line" fill="none"
+    d="M124 176
+       C129 159 141 147 159 143"/>
+
+  <!-- RIGHT EYEBROW / CURVED EXPRESSION -->
+  <path class="line" fill="none"
+    d="M245 143
+       C263 147 273 160 277 179"/>
+
+  <!-- LEFT EYE -->
+  <g id="left-eye">
+    <ellipse class="dark"
+      cx="161" cy="193" rx="14" ry="15"/>
+    <circle fill="#ffffff"
+      cx="166" cy="187" r="5.5"/>
+    <circle fill="#ffffff"
+      cx="156" cy="199" r="2.5"/>
+  </g>
+
+  <!-- RIGHT EYE -->
+  <g id="right-eye">
+    <ellipse class="dark"
+      cx="232" cy="193" rx="14" ry="15"/>
+    <circle fill="#ffffff"
+      cx="237" cy="187" r="5.5"/>
+    <circle fill="#ffffff"
+      cx="227" cy="199" r="2.5"/>
+  </g>
+
+  <!-- LEFT CHEEK -->
+  <ellipse class="cheek"
+    cx="127" cy="220" rx="19" ry="12"/>
+
+  <!-- RIGHT CHEEK -->
+  <ellipse class="cheek"
+    cx="265" cy="220" rx="19" ry="12"/>
+
+  <!-- LEFT FOUR CHEEK LINES -->
+  <g fill="none" stroke="#482820"
+     stroke-width="4.2" stroke-linecap="round">
+    <path d="M115 216 L111 224"/>
+    <path d="M123 213 L119 226"/>
+    <path d="M132 213 L128 226"/>
+    <path d="M140 216 L136 224"/>
+  </g>
+
+  <!-- RIGHT FOUR CHEEK LINES -->
+  <g fill="none" stroke="#482820"
+     stroke-width="4.2" stroke-linecap="round">
+    <path d="M253 216 L249 224"/>
+    <path d="M261 213 L257 226"/>
+    <path d="M270 213 L266 226"/>
+    <path d="M278 216 L274 224"/>
+  </g>
+
+  <!-- NOSE AND MOUTH -->
+  <g id="mouth" fill="none"
+     stroke="#482820"
+     stroke-width="4"
+     stroke-linecap="round"
+     stroke-linejoin="round">
+
+    <path d="M188 225
+             Q195 231 202 225"/>
+
+    <path d="M195 229
+             L195 238"/>
+
+    <path d="M195 238
+             Q186 247 178 239"/>
+
+    <path d="M195 238
+             Q204 247 212 239"/>
+  </g>
+
+</svg>

@@ -1,0 +1,1509 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Our Story Under the Moon</title>
+    <meta
+      name="description"
+      content="An interactive moonlit storybook confession experience guided by Usagi."
+    />
+    <meta property="og:title" content="Our Story Under the Moon" />
+    <meta
+      property="og:description"
+      content="An interactive moonlit storybook confession experience guided by Usagi."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#080c18" />
+
+    <!-- Elegant Serif + Clean Modern Sans Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Pure Static CSS3 (GitHub Pages Relative Path) -->
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body data-scene="cover">
+    <!-- Persistent Background Audio Element (Plays ONLY after START is clicked) -->
+    <audio id="bg-music" preload="auto" loop>
+      <source src="./assets/background-music.mp3" type="audio/mpeg" />
+    </audio>
+
+    <!-- Deep Outer Space Panorama Backdrop (Visible ONLY in Moon YES Scene) -->
+    <div id="moon-space-backdrop" class="moon-space-backdrop" aria-hidden="true">
+      <img
+        src="./assets/images/moon-panorama.jpg"
+        alt=""
+        class="moon-panorama-img"
+        referrerpolicy="no-referrer"
+      />
+      <div class="moon-space-scrim"></div>
+    </div>
+
+    <!-- Persistent Ambient Celestial Starfield & Continuous Falling Stars Canvas -->
+    <canvas id="sky-canvas" aria-hidden="true"></canvas>
+
+    <!-- Subtle Atmospheric Moonlight Wash Layer -->
+    <div id="atmosphere-layer" class="atmosphere-layer" aria-hidden="true"></div>
+
+    <!-- Floating Music Toggle Button (Appears after START is clicked) -->
+    <button
+      id="music-toggle"
+      class="music-toggle is-hidden"
+      type="button"
+      aria-label="Mute background music"
+      aria-pressed="false"
+      title="Toggle music"
+    >
+      <svg
+        class="music-icon icon-sound-on"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M11 5L6 9H2v6h4l5 4V5z" />
+        <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+        <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+      </svg>
+      <svg
+        class="music-icon icon-sound-off"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.6"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M11 5L6 9H2v6h4l5 4V5z" />
+        <line x1="22" y1="9" x2="16" y2="15" />
+        <line x1="16" y1="9" x2="22" y2="15" />
+      </svg>
+    </button>
+
+    <!-- Main Interactive Experience Stage -->
+    <main id="app-stage" class="app-stage">
+      <!-- ================================================================
+           PAGE 1: THE ENCHANTED BOOK
+           ================================================================ -->
+      <section
+        id="scene-cover"
+        class="scene scene-cover is-active"
+        aria-label="The Enchanted Book"
+      >
+        <div class="cover-inner">
+          <div class="cover-stage">
+            <!-- Soft Moonlight Glow Behind the Book -->
+            <div class="book-aura" aria-hidden="true"></div>
+
+            <!-- 3D Enchanted Hardcover Book -->
+            <div class="book-float-rig" aria-hidden="true">
+              <div id="enchanted-book" class="enchanted-book">
+                <!-- Solid Back Cover -->
+                <div class="book-back-cover"></div>
+
+                <!-- True 3D Spine Wall Sealing Back Cover to Front Cover -->
+                <div class="book-spine-3d"></div>
+
+                <!-- Solid 3D Page Block (Right Side) With Real Page Thickness -->
+                <div class="book-pages-block">
+                  <div class="book-page-edge book-fore-edge"></div>
+                  <div class="book-page-edge book-top-edge"></div>
+                  <div class="book-page-edge book-bottom-edge"></div>
+                  <div class="book-inner-page">
+                    <div class="inner-page-frame">
+                      <span class="inner-page-crescent">☽</span>
+                      <p class="inner-page-dedication">For you,<br />under the quiet sky</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Spine-Attached Physical Turning Flyleaf Pages -->
+                <div class="book-turning-page book-leaf-2">
+                  <div class="turning-page-front"></div>
+                  <div class="turning-page-back"></div>
+                </div>
+                <div class="book-turning-page book-leaf-1">
+                  <div class="turning-page-front"></div>
+                  <div class="turning-page-back"></div>
+                </div>
+
+                <!-- Front Hardcover Hinged Directly at the Spine -->
+                <div class="book-front-cover">
+                  <div class="book-cover-face">
+                    <div class="book-spine"></div>
+                    <div class="book-foil-border">
+                      <div class="book-corner tl"></div>
+                      <div class="book-corner tr"></div>
+                      <div class="book-corner bl"></div>
+                      <div class="book-corner br"></div>
+                      <svg
+                        class="book-moon-emblem"
+                        viewBox="0 0 64 64"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M39.5 13.5C30.8 14.8 24.5 22.3 24.5 31.3C24.5 41.3 32.6 49.4 42.6 49.4C45.4 49.4 48 48.7 50.4 47.6C46.5 52.1 40.7 55 34.2 55C22.4 55 12.8 45.4 12.8 33.6C12.8 22.6 21.1 13.5 31.8 12.3C34.5 12 37.1 12.5 39.5 13.5Z"
+                          stroke="#DFC496"
+                          stroke-width="1.5"
+                          fill="rgba(223, 196, 150, 0.14)"
+                        />
+                        <circle cx="43" cy="24" r="1.6" fill="#DFC496" />
+                        <circle cx="49" cy="31" r="1.1" fill="#F3C4CF" />
+                        <circle cx="38" cy="33" r="1" fill="#DFC496" />
+                      </svg>
+                      <span class="book-title-text">Our Story<br />Under the Moon</span>
+                      <span class="book-foil-divider"></span>
+                      <span class="book-edition-mark">A Moonlit Keepsake</span>
+                    </div>
+                  </div>
+                  <div class="book-cover-inside">
+                    <div class="book-inside-frame"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Usagi Standing Beside the Enchanted Book -->
+            <div
+              id="usagi-cover"
+              class="usagi-wrapper usagi-cover-pos usagi--idle"
+              role="button"
+              tabindex="0"
+              aria-label="Usagi companion"
+            >
+              <div class="usagi-whisper" id="usagi-cover-whisper" aria-live="polite"></div>
+              <div class="usagi-rig">
+                <img
+                  src="./assets/usagi.svg"
+                  alt="Usagi"
+                  class="usagi-img"
+                  referrerpolicy="no-referrer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="cover-copy">
+            <button id="btn-start" class="btn-primary btn-start" type="button">
+              <span>START</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           PAGE 2: THE STORY (Realistic 3-Chapter Open Book)
+           ================================================================ -->
+      <section
+        id="scene-story"
+        class="scene scene-story"
+        aria-label="The Story"
+        hidden
+      >
+        <div class="story-shell">
+          <!-- Quiet Top Reading Progress -->
+          <div class="story-meta">
+            <button id="btn-story-back" class="story-back-link" type="button" hidden>
+              &larr; Previous chapter
+            </button>
+            <span id="story-page-counter" class="story-counter">Chapter 1 of 3</span>
+          </div>
+
+          <!-- Realistic Hardcover Open Book (True 2-Page Spread) -->
+          <div class="storybook-frame">
+            <div class="real-book-cover-back" aria-hidden="true"></div>
+            <div id="story-page-card" class="real-book-spread">
+              <div class="book-stack-edge book-stack-left" aria-hidden="true"></div>
+              <div class="book-stack-edge book-stack-right" aria-hidden="true"></div>
+              <div class="book-ribbon" aria-hidden="true"></div>
+
+              <!-- Left Book Page (Header, Celestial Ink Art & Opening Paragraphs) -->
+              <article class="book-leaf book-leaf-left">
+                <div class="leaf-inner-border">
+                  <div class="book-running-head">Our Story Under the Moon</div>
+                  <div class="book-chapter-head">
+                    <p id="story-chapter-label" class="story-chapter-label">Chapter I</p>
+                    <h2 id="story-heading" class="story-heading"></h2>
+                    <div id="story-illustration" class="story-illustration" aria-hidden="true"></div>
+                  </div>
+                  <div id="story-body-left" class="story-prose"></div>
+                  <span id="story-folio-left" class="book-folio">1</span>
+                </div>
+              </article>
+
+              <!-- Center Book Spine Gutter -->
+              <div class="book-center-crease" aria-hidden="true"></div>
+
+              <!-- Right Book Page (Continuing Paragraphs & Subtle Page Number) -->
+              <article class="book-leaf book-leaf-right">
+                <div class="leaf-inner-border">
+                  <div id="story-running-chapter" class="book-running-head">Chapter I</div>
+                  <div id="story-body-right" class="story-prose"></div>
+                  <p id="story-closing-line" class="story-closing-line" hidden></p>
+                  <span id="story-folio-right" class="book-folio">2</span>
+                </div>
+              </article>
+
+              <!-- Realistic 3D Turning Page Leaf Overlay -->
+              <div id="book-turning-leaf" class="book-turning-leaf" aria-hidden="true">
+                <div class="turning-leaf-face turning-leaf-front"></div>
+                <div class="turning-leaf-face turning-leaf-back"></div>
+              </div>
+              <div id="book-turn-shadow" class="book-turn-shadow" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <!-- Companion Stage + Continue Control -->
+          <div class="story-footer">
+            <div
+              id="usagi-story"
+              class="usagi-wrapper usagi-story-pos usagi--idle"
+              role="button"
+              tabindex="0"
+              aria-label="Usagi guiding the story"
+            >
+              <div class="usagi-whisper" id="usagi-story-whisper" aria-live="polite"></div>
+              <div class="usagi-rig">
+                <img
+                  src="./assets/usagi.svg"
+                  alt="Usagi"
+                  class="usagi-img"
+                  referrerpolicy="no-referrer"
+                />
+              </div>
+            </div>
+
+            <div class="story-cta-wrap">
+              <button id="btn-continue" class="btn-primary btn-continue" type="button">
+                <span>CONTINUE</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           PAGE 3: THE QUESTION (Available directly after Chapter 3)
+           ================================================================ -->
+      <section
+        id="scene-question"
+        class="scene scene-question"
+        aria-label="The Question"
+        hidden
+      >
+        <div class="question-shell">
+          <!-- Subtle Moonlight Halo -->
+          <div class="question-moonlight" aria-hidden="true"></div>
+
+          <!-- Staged Emotional Copy -->
+          <div class="question-copy">
+            <h2 id="question-title" class="question-title">
+              Will you let me court you officially?
+            </h2>
+          </div>
+
+          <!-- Open Enchanted Book + Usagi Beside It -->
+          <div class="question-stage">
+            <div id="question-open-book" class="open-book-visual" aria-hidden="true">
+              <div class="open-book-glow"></div>
+              <div class="open-book-leaf leaf-left">
+                <span class="leaf-line"></span>
+                <span class="leaf-line short"></span>
+                <span class="leaf-line"></span>
+              </div>
+              <div class="open-book-spine-center"></div>
+              <div class="open-book-leaf leaf-right">
+                <span class="leaf-crescent">☽</span>
+                <span class="leaf-line short"></span>
+              </div>
+            </div>
+
+            <div
+              id="usagi-question"
+              class="usagi-wrapper usagi-question-pos usagi--idle"
+              role="button"
+              tabindex="0"
+              aria-label="Usagi waiting with anticipation"
+            >
+              <div class="usagi-whisper" id="usagi-question-whisper" aria-live="polite"></div>
+              <div class="usagi-rig">
+                <img
+                  src="./assets/usagi.svg"
+                  alt="Usagi"
+                  class="usagi-img"
+                  referrerpolicy="no-referrer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Two Respectful, Equal-Clarity Buttons -->
+          <div id="question-actions" class="question-actions">
+            <button id="btn-yes" class="btn-yes" type="button">
+              <span>YES &#9825;</span>
+            </button>
+            <button id="btn-no" class="btn-no" type="button">
+              <span>NO</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           YES ENDING TRANSITION: THE MAGICAL PORTAL
+           ================================================================ -->
+      <section
+        id="scene-portal"
+        class="scene scene-portal"
+        aria-label="Magical Portal Transition"
+        hidden
+      >
+        <div class="portal-stage">
+          <!-- Concentric Animated Magical Portal Behind Usagi -->
+          <div id="portal-vortex" class="portal-vortex" aria-hidden="true">
+            <div class="portal-halo"></div>
+            <div class="portal-ring ring-outer"></div>
+            <div class="portal-ring ring-middle"></div>
+            <div class="portal-ring ring-inner"></div>
+            <div class="portal-core"></div>
+          </div>
+
+          <!-- Glowing Book Opening the Portal -->
+          <div class="portal-book-glow" aria-hidden="true"></div>
+
+          <!-- Usagi Jumping Excitedly Before Entering the Portal -->
+          <div id="usagi-portal" class="usagi-wrapper usagi-portal-pos usagi--excited">
+            <div class="usagi-rig">
+              <img
+                src="./assets/usagi.svg"
+                alt="Usagi celebrating"
+                class="usagi-img"
+                referrerpolicy="no-referrer"
+              />
+            </div>
+          </div>
+
+          <p id="portal-caption" class="portal-caption" aria-live="polite">
+            Taking you somewhere special...
+          </p>
+        </div>
+
+        <!-- Luminous Starlight Crossing Flash -->
+        <div id="portal-flash" class="portal-flash" aria-hidden="true"></div>
+      </section>
+
+      <!-- ================================================================
+           PAGE 4: THE MOON SURPRISE (Accessible ONLY after selecting YES)
+           Focused cleanly on the Moon, Continuous Falling Stars & YES Message
+           ================================================================ -->
+      <section
+        id="scene-moon"
+        class="scene scene-moon"
+        aria-label="Under the Moon Surprise"
+        hidden
+      >
+        <div class="moon-content moon-content-focused" id="moon-yes-stage">
+          <!-- Hero Moon Environment + Floating Usagi -->
+          <header class="moon-hero moon-hero-focused">
+            <div class="moon-celestial-stage">
+              <div class="moon-orb-wrap" id="moon-orb-wrap">
+                <div class="moon-orb-halo" aria-hidden="true"></div>
+                <img
+                  src="./assets/images/moon-orb.jpg"
+                  alt="Luminous full moon in midnight space"
+                  class="moon-orb-img"
+                  referrerpolicy="no-referrer"
+                />
+              </div>
+
+              <!-- Usagi Floating Weightlessly in Space -->
+              <div
+                id="usagi-moon-top"
+                class="usagi-wrapper usagi-moon-float-pos usagi--floating"
+                role="button"
+                tabindex="0"
+                aria-label="Usagi floating near the moon"
+              >
+                <div class="usagi-whisper" id="usagi-moon-whisper" aria-live="polite"></div>
+                <div class="usagi-rig">
+                  <img
+                    src="./assets/usagi.svg"
+                    alt="Usagi floating under the moon"
+                    class="usagi-img"
+                    referrerpolicy="no-referrer"
+                  />
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <!-- Main YES Message Only -->
+          <article class="moon-yes-message-wrap" aria-label="Message for you">
+            <div class="moon-letter-card moon-yes-card">
+              <h1 id="moon-yes-headline" class="moon-yes-headline">WAIT, YOU SAID YES?!</h1>
+              <div id="moon-letter-paragraphs" class="letter-paragraphs moon-yes-body"></div>
+            </div>
+            <div class="moon-next-wrap">
+              <button id="btn-moon-next" class="btn-secondary moon-next-btn" type="button">
+                <span>CONTINUE</span>
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <!-- Centered Transition Interlude: "Wait... there's more!" -->
+        <div id="moon-teaser" class="moon-teaser" hidden aria-live="polite">
+          <div class="moon-teaser-orb" aria-hidden="true">
+            <img
+              src="./assets/images/moon-orb.jpg"
+              alt=""
+              class="moon-orb-img"
+              referrerpolicy="no-referrer"
+            />
+          </div>
+          <p id="moon-teaser-text" class="moon-teaser-text">Wait... there's more!</p>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           FINAL ANIMATION: A FLOWER FOR YOU (14.5 SECONDS)
+           2D Cyberpunk-Inspired Anime Animation Under the Moon
+           Consistent David- & Lucy-Inspired Character Designs
+           ================================================================ -->
+      <section
+        id="scene-flower"
+        class="scene scene-flower"
+        aria-label="A Flower For You"
+        hidden
+      >
+        <div id="flower-camera" class="flower-camera">
+          <!-- Moon & Romantic Glow Behind the Couple -->
+          <div class="flower-moon-backdrop" aria-hidden="true">
+            <div class="flower-moon-halo"></div>
+            <img
+              src="./assets/images/moon-orb.jpg"
+              alt=""
+              class="flower-moon-img"
+              referrerpolicy="no-referrer"
+            />
+          </div>
+
+          <!-- Romantic Warm Light Wash (Blooms During 7–11s) -->
+          <div class="flower-romantic-glow" aria-hidden="true"></div>
+
+          <!-- Floating Rose Petals Canvas -->
+          <canvas id="petals-canvas" class="petals-canvas" aria-hidden="true"></canvas>
+
+          <!-- 2D Anime-Inspired Animated SVG Stage -->
+          <div class="flower-stage-wrap">
+            <svg
+              id="flower-scene-svg"
+              class="flower-scene-svg"
+              viewBox="0 0 800 500"
+              preserveAspectRatio="xMidYMax slice"
+              role="img"
+              aria-label="A boy in a bright yellow futuristic jacket gently offers a bouquet of flowers to a girl with a pale pink-and-cyan bob under the moon"
+            >
+              <defs>
+                <!-- Environment Gradients -->
+                <linearGradient id="hillGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#18203f" />
+                  <stop offset="38%" stop-color="#0f152c" />
+                  <stop offset="100%" stop-color="#060914" />
+                </linearGradient>
+                <linearGradient id="moonRim" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="rgba(229,234,245,0.08)" />
+                  <stop offset="50%" stop-color="rgba(160,224,245,0.48)" />
+                  <stop offset="100%" stop-color="rgba(229,234,245,0.08)" />
+                </linearGradient>
+
+                <!-- Boy (David-Inspired) Character Palette -->
+                <linearGradient id="davidSkin" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f7d7c2" />
+                  <stop offset="100%" stop-color="#dfb59e" />
+                </linearGradient>
+                <linearGradient id="davidHair" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#4e3429" />
+                  <stop offset="55%" stop-color="#33201a" />
+                  <stop offset="100%" stop-color="#211411" />
+                </linearGradient>
+                <linearGradient id="davidJacket" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fae038" />
+                  <stop offset="58%" stop-color="#ecc71c" />
+                  <stop offset="100%" stop-color="#c69e10" />
+                </linearGradient>
+                <linearGradient id="davidJacketSleeve" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#f7da2f" />
+                  <stop offset="100%" stop-color="#cfa612" />
+                </linearGradient>
+                <linearGradient id="davidPants" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#232838" />
+                  <stop offset="100%" stop-color="#131722" />
+                </linearGradient>
+
+                <!-- Girl (Lucy-Inspired) Character Palette -->
+                <linearGradient id="lucySkin" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fdece6" />
+                  <stop offset="100%" stop-color="#e8cdd0" />
+                </linearGradient>
+                <linearGradient id="lucyHairGrad" x1="0%" y1="0%" x2="15%" y2="100%">
+                  <stop offset="0%" stop-color="#fdf7fa" />
+                  <stop offset="52%" stop-color="#f5dae7" />
+                  <stop offset="80%" stop-color="#c6e5f5" />
+                  <stop offset="100%" stop-color="#7cd4ec" />
+                </linearGradient>
+                <linearGradient id="lucyHairBack" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#ebd4e2" />
+                  <stop offset="65%" stop-color="#c9d5e8" />
+                  <stop offset="100%" stop-color="#69c2e0" />
+                </linearGradient>
+                <linearGradient id="lucyJacketWhite" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ffffff" />
+                  <stop offset="65%" stop-color="#eef2f9" />
+                  <stop offset="100%" stop-color="#ccd5e6" />
+                </linearGradient>
+                <linearGradient id="lucyBlueAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#2b4280" />
+                  <stop offset="100%" stop-color="#162247" />
+                </linearGradient>
+                <linearGradient id="lucyBodysuit" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#222536" />
+                  <stop offset="100%" stop-color="#11131e" />
+                </linearGradient>
+                <linearGradient id="lucyBoot" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#25283a" />
+                  <stop offset="100%" stop-color="#0e1019" />
+                </linearGradient>
+
+                <!-- Bouquet Wrap -->
+                <linearGradient id="bouquetWrap" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#fbf3e6" />
+                  <stop offset="100%" stop-color="#dfcdb7" />
+                </linearGradient>
+              </defs>
+
+              <!-- Curved Moonlit Horizon Hilltop -->
+              <path
+                d="M -40 422 Q 400 356 840 422 L 840 520 L -40 520 Z"
+                fill="url(#hillGrad)"
+              />
+              <path
+                d="M -40 422 Q 400 356 840 422"
+                fill="none"
+                stroke="url(#moonRim)"
+                stroke-width="2"
+              />
+
+              <!-- Natural Ground Shadows -->
+              <ellipse cx="344" cy="401" rx="34" ry="6.5" fill="#050812" opacity="0.6" />
+              <ellipse cx="456" cy="400" rx="32" ry="6.5" fill="#050812" opacity="0.6" />
+
+              <!-- ======================== BOY CHARACTER (David-Inspired) ======================== -->
+              <g id="char-boy" class="char-boy">
+                <!-- Dark Futuristic Pants & Athletic Stance -->
+                <path
+                  d="M -13 -84 L -16 -10 L -3 -5 L -2 -82 Z"
+                  fill="#151926"
+                  stroke="#0d1018"
+                  stroke-width="1"
+                />
+                <path
+                  d="M 1 -84 L 14 -84 L 19 -10 L 5 -10 Z"
+                  fill="url(#davidPants)"
+                  stroke="#10131e"
+                  stroke-width="1"
+                />
+                <!-- Subtle Futuristic Seam & Knee Strap Detail -->
+                <path d="M 4 -48 L 16 -46" stroke="#3c4663" stroke-width="2.2" stroke-linecap="round" />
+                <path d="M 6 -72 L 10 -14" stroke="rgba(255,255,255,0.08)" stroke-width="1.2" />
+                <!-- Sleek Futuristic Dark/White Sneakers -->
+                <path d="M -17 -10 L -1 -10 L 5 -3 L -18 -3 Z" fill="#181b26" />
+                <path d="M -17 -3 L 5 -3" stroke="#e9edf5" stroke-width="2.2" stroke-linecap="round" />
+                <path d="M 5 -10 L 21 -10 L 28 -3 L 4 -3 Z" fill="#212636" />
+                <path d="M 4 -3 L 28 -3" stroke="#f0f3f8" stroke-width="2.4" stroke-linecap="round" />
+
+                <!-- Upper Body: Dark Inner Shirt + Bright Yellow Futuristic Jacket -->
+                <g class="boy-upper-body">
+                  <!-- Dark Inner Shirt Visible at Front -->
+                  <path d="M -12 -152 L 17 -152 L 15 -80 L -13 -80 Z" fill="#13161f" />
+                  <!-- Subtle Belt & Buckle -->
+                  <rect x="-15" y="-86" width="31" height="5.5" rx="1.5" fill="#11131b" />
+                  <rect x="6" y="-85.5" width="7" height="4.5" rx="1" fill="#8b95ad" />
+
+                  <!-- Iconic Bright Yellow Futuristic Jacket (High Collar, White & Black Details) -->
+                  <path
+                    d="M -23 -154 C -10 -160, 12 -159, 21 -150 L 22 -84 L 9 -84 L 7 -144 L -3 -144 L -8 -84 L -26 -86 Z"
+                    fill="url(#davidJacket)"
+                    stroke="#171922"
+                    stroke-width="1.3"
+                  />
+                  <!-- High Standing Tech Collar (Yellow Outer + Black Inner + White Accent) -->
+                  <path
+                    d="M -18 -154 L -15 -169 L 13 -167 L 17 -151 Z"
+                    fill="#161924"
+                  />
+                  <path
+                    d="M -20 -152 L -17 -167 L -4 -165 L -8 -149 Z"
+                    fill="#fae038"
+                    stroke="#171922"
+                    stroke-width="1.2"
+                  />
+                  <!-- White Futuristic Shoulder Panel & Black Structural Stripes -->
+                  <path
+                    d="M -22 -152 L -4 -153 L -6 -136 L -24 -138 Z"
+                    fill="#f4f7fb"
+                    stroke="#171922"
+                    stroke-width="1"
+                  />
+                  <path d="M -24 -116 L -9 -116" stroke="#171922" stroke-width="3.2" stroke-linecap="round" />
+                  <path d="M -25 -92 L -9 -92" stroke="#171922" stroke-width="4.5" />
+                  <path d="M 10 -92 L 21 -92" stroke="#171922" stroke-width="4.5" />
+                  <path d="M 11 -144 L 19 -142 L 19 -130 L 11 -132 Z" fill="#f4f7fb" />
+                  <path d="M -20 -128 L -11 -128" stroke="#45d89e" stroke-width="2" stroke-linecap="round" opacity="0.88" />
+
+                  <!-- Boy Head: Sharp Youthful Anime Features + Tall Spiky Dark Brown Hair & Shaved Sides -->
+                  <g class="boy-head">
+                    <!-- Neck -->
+                    <rect x="-6" y="7" width="12" height="16" rx="4.5" fill="url(#davidSkin)" />
+                    <!-- Youthful Sharp Jaw Profile -->
+                    <path
+                      d="M -16 -13 C -16 -32, 14 -34, 18 -14 L 20 -3 L 17 4 C 15 11, 9 15, 1 15 C -10 15, -16 6, -16 -13 Z"
+                      fill="url(#davidSkin)"
+                    />
+                    <!-- Shaved / Closely Trimmed Sides (Faded Undercut) -->
+                    <path
+                      d="M -17 -13 C -18 -23, -10 -28, -2 -26 L -3 -4 C -7 3, -14 2, -16 -5 Z"
+                      fill="#42332c"
+                      opacity="0.72"
+                    />
+                    <path
+                      d="M -14 -4 C -15 -10, -10 -12, -8 -7 C -7 -2, -11 2, -14 -4 Z"
+                      fill="url(#davidSkin)"
+                    />
+                    <!-- Distinctive Tall, Spiky Dark Brown Hair -->
+                    <path
+                      d="M -19 -14
+                         L -25 -27 L -14 -26
+                         L -19 -43 L -6 -35
+                         L -5 -54 L 7 -39
+                         L 18 -51 L 17 -33
+                         L 29 -36 L 21 -21
+                         L 26 -14 L 16 -15
+                         C 12 -22, 4 -24, -4 -20
+                         C -10 -17, -13 -11, -15 -7 Z"
+                      fill="url(#davidHair)"
+                      stroke="#180f0c"
+                      stroke-width="1.2"
+                      stroke-linejoin="round"
+                    />
+                    <!-- Subtle Breeze Highlight Spike -->
+                    <path
+                      class="boy-hair-breeze"
+                      d="M -4 -47 L 6 -36 L 16 -45 L 13 -31 L -2 -33 Z"
+                      fill="#5a3d30"
+                      opacity="0.72"
+                    />
+                    <!-- Sharp Anime Eye (Amber-Brown with Specular Catchlight) -->
+                    <path d="M 6 -12 L 15 -13.5" stroke="#241510" stroke-width="1.9" stroke-linecap="round" />
+                    <path d="M 7 -7.5 Q 11 -10.2 14.5 -7.5" fill="none" stroke="#1b1210" stroke-width="1.7" stroke-linecap="round" />
+                    <ellipse cx="11" cy="-5.8" rx="2.6" ry="3.2" fill="#5e3a20" />
+                    <circle cx="11.2" cy="-5.8" r="1.4" fill="#1a110d" />
+                    <circle cx="12.1" cy="-7.1" r="1.05" fill="#ffffff" />
+                    <!-- Subtle Smile (Calm -> Warm Happy Reaction) -->
+                    <path class="boy-smile-calm" d="M 10 6.2 Q 13.8 7.5 16.2 5.6" fill="none" stroke="#8e5a4a" stroke-width="1.45" stroke-linecap="round" />
+                    <path class="boy-smile-happy" d="M 9.6 5.4 Q 14 9.6 17.2 4.8" fill="none" stroke="#8e5a4a" stroke-width="1.7" stroke-linecap="round" />
+                    <ellipse class="boy-blush" cx="8.5" cy="1.2" rx="4.4" ry="2.1" fill="#f09bb2" />
+                  </g>
+
+                  <!-- Single Articulated Yellow Futuristic Jacket Arm -->
+                  <g class="boy-arm-pivot">
+                    <!-- Bright Yellow Sleeve -->
+                    <path
+                      d="M 0 0 C 4 21, 6 40, 4 54"
+                      fill="none"
+                      stroke="url(#davidJacketSleeve)"
+                      stroke-width="13"
+                      stroke-linecap="round"
+                    />
+                    <!-- White Upper Shoulder Stripe & Black Cyber Cuff -->
+                    <path d="M 0 2 L 2 14" stroke="#f5f8fc" stroke-width="4.5" stroke-linecap="round" />
+                    <path d="M 0 46 L 8 46" stroke="#171922" stroke-width="4.8" stroke-linecap="round" />
+                    <!-- Hand -->
+                    <circle cx="4" cy="58" r="5.6" fill="url(#davidSkin)" />
+                  </g>
+                </g>
+              </g>
+
+              <!-- ======================== GIRL CHARACTER (Lucy-Inspired) ======================== -->
+              <g id="char-girl" class="char-girl">
+                <!-- Back Layer of Short White/Pale-Pink Bob with Cyan/Blue Tips -->
+                <path
+                  class="girl-hair-flow"
+                  d="M -6 -184 C 14 -190, 29 -174, 28 -144 C 27 -132, 22 -124, 12 -122 C 4 -126, 2 -140, 0 -158 Z"
+                  fill="url(#lucyHairBack)"
+                />
+
+                <!-- Slender Legs + Sleek Tall Futuristic Dark Boots -->
+                <path d="M -8 -78 L -11 -42" stroke="url(#lucySkin)" stroke-width="9" stroke-linecap="round" />
+                <path d="M 7 -78 L 10 -42" stroke="#e4c6cb" stroke-width="9" stroke-linecap="round" />
+                <!-- Sleek Futuristic Over-Knee Boots -->
+                <path
+                  d="M -16 -52 L -6 -50 L -7 -4 L -19 -3 L -15 -14 Z"
+                  fill="url(#lucyBoot)"
+                  stroke="#090b12"
+                  stroke-width="1"
+                />
+                <path
+                  d="M 4 -50 L 14 -52 L 15 -14 L 10 -3 L -2 -3 L 3 -14 Z"
+                  fill="url(#lucyBoot)"
+                  stroke="#090b12"
+                  stroke-width="1"
+                />
+                <!-- Subtle Futuristic Cyan/Silver Boot Accent Seam -->
+                <path d="M -11 -46 L -12 -12" stroke="rgba(130,218,244,0.34)" stroke-width="1.2" stroke-linecap="round" />
+                <path d="M 9 -46 L 8 -12" stroke="rgba(130,218,244,0.28)" stroke-width="1.2" stroke-linecap="round" />
+
+                <!-- Upper Body: Sleek Dark Futuristic Bodysuit + White Cropped Jacket w/ Dark Blue Accents -->
+                <g class="girl-upper-body">
+                  <!-- Distinctive Futuristic Dark Bodysuit -->
+                  <path
+                    d="M -13 -138 L 13 -138 L 15 -98 C 17 -86, 15 -74, 11 -68 L 2 -64 L -11 -68 C -15 -74, -17 -86, -14 -98 Z"
+                    fill="url(#lucyBodysuit)"
+                    stroke="#0d0f18"
+                    stroke-width="1.1"
+                  />
+                  <!-- Subtle Bodysuit Structural Seam & Red Clasp Accent -->
+                  <path d="M -14 -96 Q 0 -92 14 -96" fill="none" stroke="#313954" stroke-width="1.5" />
+                  <path d="M -12 -74 Q 0 -80 12 -74" fill="none" stroke="#2c334d" stroke-width="1.5" />
+                  <rect x="-12" y="-102" width="4" height="2.4" rx="1" fill="#e55a7d" />
+
+                  <!-- Iconic White Cropped Futuristic Jacket with Dark Blue Accents -->
+                  <path
+                    class="girl-jacket-hem"
+                    d="M -16 -140 C -5 -146, 12 -145, 19 -138 L 23 -102 C 14 -98, 2 -100, -5 -104 L -9 -128 L -17 -126 Z"
+                    fill="url(#lucyJacketWhite)"
+                    stroke="#b7c2d6"
+                    stroke-width="1"
+                  />
+                  <!-- Dark Blue Structured Collar & Lapel Accents -->
+                  <path
+                    d="M -13 -140 L -10 -152 L 15 -150 L 18 -138 L 6 -134 L -10 -136 Z"
+                    fill="url(#lucyBlueAccent)"
+                  />
+                  <path d="M 10 -136 L 20 -132 L 22 -106 L 14 -106 Z" fill="url(#lucyBlueAccent)" opacity="0.92" />
+                  <path d="M -6 -105 L 22 -103" stroke="#1c2f66" stroke-width="3.2" stroke-linecap="round" />
+
+                  <!-- Girl Head: Short White/Pale-Pink Bob with Straight Bangs & Cyan/Blue Tips -->
+                  <g class="girl-head">
+                    <!-- Neck -->
+                    <rect x="-5" y="7" width="10" height="14" rx="4.5" fill="url(#lucySkin)" />
+                    <!-- Delicate Youthful Anime Profile -->
+                    <path
+                      d="M 15 -11 C 15 -30, -14 -31, -17 -12 L -18 -2 L -15 4 C -13 11, -7 14, 0 14 C 10 14, 15 5, 15 -11 Z"
+                      fill="url(#lucySkin)"
+                    />
+                    <!-- Short White/Pale-Pink Bob with Straight Bangs & Subtle Cyan/Blue Ends -->
+                    <path
+                      d="M 19 -12
+                         C 21 -31, 4 -38, -13 -31
+                         C -21 -27, -22 -17, -20 -9
+                         L -12 -9 L -11 -16 L -4 -11
+                         C 3 -15, 7 -4, 7 12
+                         C 12 18, 19 15, 22 4
+                         C 23 -2, 21 -8, 19 -12 Z"
+                      fill="url(#lucyHairGrad)"
+                      stroke="rgba(130,152,186,0.45)"
+                      stroke-width="0.9"
+                    />
+                    <!-- Straight Bangs Framing Forehead + Face-Framing Cheek Strand with Cyan Tip -->
+                    <path
+                      d="M -19 -18 L -11 -18 L -12 -9 L -20 -9 Z"
+                      fill="#f7e4ee"
+                    />
+                    <path
+                      d="M -6 -18 C -2 -6, -3 8, -7 18 C -3 15, 2 7, 2 -11 Z"
+                      fill="url(#lucyHairGrad)"
+                    />
+                    <!-- Subtle Pink/Cyan Hair Rim Highlight -->
+                    <path
+                      d="M -12 -28 C 0 -33, 13 -28, 17 -16"
+                      fill="none"
+                      stroke="#ffffff"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      opacity="0.72"
+                    />
+                    <!-- Expressive Anime Eye (Pastel Violet-Cyan with Soft Lash) -->
+                    <path d="M -5 -12.5 Q -10 -14 -14.5 -11.5" fill="none" stroke="#8a7a99" stroke-width="1.3" stroke-linecap="round" />
+                    <path d="M -6 -7.5 Q -10.5 -10 -14 -7" fill="none" stroke="#2c2440" stroke-width="1.8" stroke-linecap="round" />
+                    <ellipse cx="-10" cy="-5.2" rx="2.7" ry="3.6" fill="#7a68a6" />
+                    <ellipse cx="-10" cy="-3.8" rx="1.7" ry="1.5" fill="#7cd8f0" opacity="0.88" />
+                    <circle cx="-11" cy="-6.8" r="1.15" fill="#ffffff" />
+                    <!-- Soft Smile & Gentle Blush -->
+                    <path class="girl-smile" d="M -14.2 5.2 Q -10.5 8.2 -7.4 5" fill="none" stroke="#b06a78" stroke-width="1.5" stroke-linecap="round" />
+                    <ellipse class="girl-blush" cx="-7.5" cy="1.2" rx="4.8" ry="2.2" fill="#f39cb8" />
+                  </g>
+
+                  <!-- Single Articulated White Cropped-Jacket Arm with Dark Blue Cuff -->
+                  <g class="girl-arm-pivot">
+                    <path
+                      d="M 0 0 C -3 20, -4 38, -3 49"
+                      fill="none"
+                      stroke="url(#lucyJacketWhite)"
+                      stroke-width="9.2"
+                      stroke-linecap="round"
+                    />
+                    <path d="M -6 42 L 1 42" stroke="#1e3169" stroke-width="4.2" stroke-linecap="round" />
+                    <circle cx="-3" cy="52" r="4.6" fill="url(#lucySkin)" />
+                  </g>
+                </g>
+              </g>
+
+              <!-- ======================== SINGLE CONTINUOUS BOUQUET ========================
+                   Glides smoothly from behind boy's back -> extended handoff -> girl's arms -->
+              <g id="shared-bouquet" class="shared-bouquet">
+                <path
+                  d="M -6 10 L 18 -16 L 34 -4 L 4 22 Z"
+                  fill="url(#bouquetWrap)"
+                  stroke="#c9b196"
+                  stroke-width="1.2"
+                />
+                <path d="M 4 22 L 15 11 L 20 15 L 8 27 Z" fill="#d98ea4" />
+                <ellipse cx="9" cy="14" rx="5" ry="3" fill="#c97b92" transform="rotate(-28 9 14)" />
+                <ellipse cx="14" cy="18" rx="5" ry="3" fill="#e29db1" transform="rotate(24 14 18)" />
+                <ellipse cx="18" cy="-14" rx="8" ry="4" fill="#5e7f76" transform="rotate(-35 18 -14)" />
+                <ellipse cx="30" cy="-6" rx="8" ry="4" fill="#4f6d66" transform="rotate(18 30 -6)" />
+                <ellipse cx="26" cy="-19" rx="7" ry="3.5" fill="#6d9186" transform="rotate(-10 26 -19)" />
+                <circle cx="21" cy="-12" r="7.5" fill="#f09bb2" />
+                <circle cx="20" cy="-13" r="4" fill="#f8c8d6" />
+                <circle cx="30" cy="-14" r="6.8" fill="#d8829d" />
+                <circle cx="29" cy="-15" r="3.4" fill="#f3b6c7" />
+                <circle cx="26" cy="-5" r="6.5" fill="#f6c7d4" />
+                <circle cx="15" cy="-5" r="5.5" fill="#c9b4e6" />
+                <circle cx="14" cy="-18" r="2" fill="#fffaf2" />
+                <circle cx="36" cy="-10" r="2" fill="#fffaf2" />
+                <circle cx="32" cy="-21" r="1.8" fill="#fffaf2" />
+              </g>
+            </svg>
+
+            <!-- Usagi Appears Nearby Gently Waving (11–14.5s) -->
+            <div
+              id="usagi-flower"
+              class="usagi-wrapper usagi-flower-pos usagi--waving"
+              aria-label="Usagi gently waving beside the couple"
+            >
+              <div class="usagi-rig">
+                <img
+                  src="./assets/usagi.svg"
+                  alt="Usagi waving happily"
+                  class="usagi-img"
+                  referrerpolicy="no-referrer"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           FINAL ENDING: SITTING TOGETHER WATCHING "I LOVE YOU" FIREWORKS
+           Rear-view cinematic composition: Boy (left) & Girl (right) seated
+           side by side facing the open fireworks sky, ending in natural fade.
+           ================================================================ -->
+      <section
+        id="scene-finale"
+        class="scene scene-finale"
+        aria-label="Sitting Together Watching Fireworks"
+        hidden
+      >
+        <!-- Deep Atmospheric Night Sky & Horizon Glow -->
+        <div class="finale-sky-atmosphere" aria-hidden="true"></div>
+
+        <!-- Soft Moon Hanging in the Open Night Sky -->
+        <div class="finale-moon-wrap" aria-hidden="true">
+          <div class="finale-moon-halo"></div>
+          <img
+            src="./assets/images/moon-orb.jpg"
+            alt=""
+            class="finale-moon-img"
+            referrerpolicy="no-referrer"
+          />
+        </div>
+
+        <!-- Dynamic Firework Illumination Glow Behind Characters -->
+        <div id="finale-rim-wash" class="finale-rim-wash" aria-hidden="true"></div>
+
+        <!-- Dedicated 60fps Fireworks, Water Reflections & Sparkling "I LOVE YOU" Canvas -->
+        <canvas id="fireworks-canvas" class="fireworks-canvas" aria-hidden="true"></canvas>
+
+        <!-- Wide Peaceful Nighttime Vista: Seated Couple From Behind (Boy Left, Girl Right) -->
+        <div class="finale-vista">
+          <svg
+            id="finale-couple-svg"
+            class="finale-couple-svg"
+            viewBox="0 0 1000 340"
+            preserveAspectRatio="xMidYMax slice"
+            role="img"
+            aria-label="The boy and girl sitting peacefully side by side from behind, watching fireworks illuminate the night sky"
+          >
+            <defs>
+              <!-- Water & Night Horizon Gradients -->
+              <linearGradient id="finaleWaterGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#0d1530" stop-opacity="0.38" />
+                <stop offset="55%" stop-color="#090f24" stop-opacity="0.56" />
+                <stop offset="100%" stop-color="#050814" stop-opacity="0.82" />
+              </linearGradient>
+              <linearGradient id="finaleLedgeTop" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#1b223d" />
+                <stop offset="42%" stop-color="#11162b" />
+                <stop offset="100%" stop-color="#070a15" />
+              </linearGradient>
+              <linearGradient id="finaleLedgeEdge" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="rgba(160,180,235,0.08)" />
+                <stop offset="50%" stop-color="rgba(246,204,218,0.42)" />
+                <stop offset="100%" stop-color="rgba(160,180,235,0.08)" />
+              </linearGradient>
+
+              <!-- Boy Back-View Palette (Consistent David-Inspired) -->
+              <linearGradient id="davidBackYellow" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#fae038" />
+                <stop offset="55%" stop-color="#e5be1a" />
+                <stop offset="100%" stop-color="#a8840d" />
+              </linearGradient>
+              <linearGradient id="davidBackHair" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#4e3429" />
+                <stop offset="65%" stop-color="#2f1d17" />
+                <stop offset="100%" stop-color="#1d110e" />
+              </linearGradient>
+
+              <!-- Girl Back-View Palette (Consistent Lucy-Inspired) -->
+              <linearGradient id="lucyBackHair" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#fcf5f9" />
+                <stop offset="54%" stop-color="#f2d5e5" />
+                <stop offset="80%" stop-color="#bee2f4" />
+                <stop offset="100%" stop-color="#6ccce8" />
+              </linearGradient>
+              <linearGradient id="lucyBackJacket" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#ffffff" />
+                <stop offset="65%" stop-color="#e5ebf6" />
+                <stop offset="100%" stop-color="#bcc7dc" />
+              </linearGradient>
+              <linearGradient id="lucyBackBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#2a4180" />
+                <stop offset="100%" stop-color="#142045" />
+              </linearGradient>
+            </defs>
+
+            <!-- Distant Soft Silhouette Ridge Across the Night Bay -->
+            <path
+              d="M -20 124 Q 140 108 320 122 T 680 118 T 1020 126 L 1020 150 L -20 150 Z"
+              fill="#0a1026"
+              opacity="0.72"
+            />
+
+            <!-- Calm Reflecting Water Band Below Horizon -->
+            <rect x="-20" y="132" width="1040" height="118" fill="url(#finaleWaterGrad)" />
+            <line
+              x1="0"
+              y1="133"
+              x2="1000"
+              y2="133"
+              stroke="rgba(220,232,255,0.16)"
+              stroke-width="1"
+            />
+            <!-- Subtle Distant City / Shoreline Sparkles -->
+            <g opacity="0.45">
+              <circle cx="132" cy="130" r="1.1" fill="#f6d699" />
+              <circle cx="144" cy="131" r="0.9" fill="#9cdcf2" />
+              <circle cx="218" cy="130" r="1" fill="#f6c4d4" />
+              <circle cx="774" cy="129" r="1.1" fill="#f6d699" />
+              <circle cx="812" cy="130" r="0.9" fill="#9cdcf2" />
+              <circle cx="856" cy="131" r="1" fill="#f6c4d4" />
+            </g>
+
+            <!-- Peaceful Foreground Hillside Overlook / Ledge Where They Sit -->
+            <path
+              d="M -30 258 Q 500 218 1030 258 L 1030 360 L -30 360 Z"
+              fill="url(#finaleLedgeTop)"
+            />
+            <path
+              d="M -30 258 Q 500 218 1030 258"
+              fill="none"
+              stroke="url(#finaleLedgeEdge)"
+              stroke-width="2"
+            />
+
+            <!-- Soft Ground Contact Shadows Under Seated Couple & Planted Hands -->
+            <ellipse cx="415" cy="291" rx="78" ry="8.5" fill="#040710" opacity="0.72" />
+            <ellipse cx="592" cy="291" rx="64" ry="8" fill="#040710" opacity="0.72" />
+
+            <!-- ============================================================
+                 BOY SITTING ON THE LEFT (Reference Sitting Pose — Rear View)
+                 Seated directly on ground, leaning slightly back with both
+                 arms braced downward and hands planted flat beside/behind hips.
+                 Consistent David-inspired spiky dark hair, bright yellow
+                 futuristic jacket with white/black/teal details & dark pants.
+                 ============================================================ -->
+            <g class="seated-boy" transform="translate(415, 290)">
+              <g class="seated-settle seated-settle-boy">
+                <g class="seated-breathe seated-breathe-boy">
+                  <!-- Comfortably Bent Dark Futuristic Pants Peeking Around Seated Base -->
+                  <path
+                    d="M -50 -2 C -46 -12, -32 -16, -22 -12 L -26 0 L -50 0 Z"
+                    fill="#181d2b"
+                    stroke="#0c0f17"
+                    stroke-width="1.1"
+                  />
+                  <path
+                    d="M 50 -2 C 46 -12, 32 -16, 22 -12 L 26 0 L 50 0 Z"
+                    fill="#161b28"
+                    stroke="#0c0f17"
+                    stroke-width="1.1"
+                  />
+                  <!-- Subtle Fold Highlight on Bent Legs -->
+                  <path d="M -46 -4 Q -36 -10 -28 -6" fill="none" stroke="#2c354c" stroke-width="1.4" stroke-linecap="round" />
+                  <path d="M 46 -4 Q 36 -10 28 -6" fill="none" stroke="#2c354c" stroke-width="1.4" stroke-linecap="round" />
+
+                  <!-- Left Hand Planted Flat on the Ground (Fingers Gently Splayed Left) -->
+                  <path
+                    d="M -52 -12 L -60 -3 L -76 -1 C -78 0, -76 2, -72 2 L -62 1 L -67 3.5 C -68 4.5, -65 5, -61 3.5 L -54 1 L -48 1 L -46 -10 Z"
+                    fill="#e2baa4"
+                    stroke="#1c1618"
+                    stroke-width="1"
+                    stroke-linejoin="round"
+                  />
+                  <!-- Right Hand Planted Flat on the Ground (Fingers Gently Splayed Right) -->
+                  <path
+                    d="M 52 -12 L 60 -3 L 76 -1 C 78 0, 76 2, 72 2 L 62 1 L 67 3.5 C 68 4.5, 65 5, 61 3.5 L 54 1 L 48 1 L 46 -10 Z"
+                    fill="#d8af99"
+                    stroke="#1c1618"
+                    stroke-width="1"
+                    stroke-linejoin="round"
+                  />
+
+                  <!-- Left Arm Braced Downward & Outward (Baggy Yellow Sleeve + White Band + Dark Cuff) -->
+                  <path
+                    d="M -30 -90
+                       C -44 -82, -52 -64, -56 -44
+                       L -62 -16 L -58 -8 L -42 -10 L -38 -24 L -32 -54 Z"
+                    fill="url(#davidBackYellow)"
+                    stroke="#171922"
+                    stroke-width="1.3"
+                    stroke-linejoin="round"
+                  />
+                  <!-- White Futuristic Mid-Sleeve Band (Left) -->
+                  <path
+                    d="M -53 -56 L -34 -60 L -33 -50 L -55 -46 Z"
+                    fill="#f4f7fb"
+                    stroke="#171922"
+                    stroke-width="1"
+                  />
+                  <!-- Black/Dark Sleeve Fold & Wrist Cuff (Left) -->
+                  <path d="M -60 -17 L -41 -19 L -42 -10 L -58 -8 Z" fill="#171a24" />
+                  <path d="M -55 -40 L -38 -36" stroke="#b38d0e" stroke-width="2" stroke-linecap="round" opacity="0.7" />
+
+                  <!-- Right Arm Braced Downward & Outward (Baggy Yellow Sleeve + White Band + Dark Cuff) -->
+                  <path
+                    d="M 30 -90
+                       C 44 -82, 52 -64, 56 -44
+                       L 62 -16 L 58 -8 L 42 -10 L 38 -24 L 32 -54 Z"
+                    fill="url(#davidBackYellow)"
+                    stroke="#171922"
+                    stroke-width="1.3"
+                    stroke-linejoin="round"
+                  />
+                  <!-- White Futuristic Mid-Sleeve Band (Right) -->
+                  <path
+                    d="M 53 -56 L 34 -60 L 33 -50 L 55 -46 Z"
+                    fill="#eef3f8"
+                    stroke="#171922"
+                    stroke-width="1"
+                  />
+                  <!-- Black/Dark Sleeve Fold & Wrist Cuff (Right) -->
+                  <path d="M 60 -17 L 41 -19 L 42 -10 L 58 -8 Z" fill="#171a24" />
+                  <path d="M 55 -40 L 38 -36" stroke="#b38d0e" stroke-width="2" stroke-linecap="round" opacity="0.7" />
+
+                  <!-- Main Back of Oversized Bright Yellow Futuristic Jacket Draping to Ground -->
+                  <path
+                    d="M -34 -88
+                       C -18 -98, 18 -98, 34 -88
+                       L 40 -34
+                       C 42 -16, 36 -4, 24 0
+                       L -24 0
+                       C -36 -4, -42 -16, -40 -34 Z"
+                    fill="url(#davidBackYellow)"
+                    stroke="#171922"
+                    stroke-width="1.4"
+                    stroke-linejoin="round"
+                  />
+                  <!-- Subtle Cel-Shaded Draping Shadow Along Lower Back & Folds -->
+                  <path
+                    d="M -38 -42 C -24 -48, -10 -46, -4 -30 C 0 -16, 12 -8, 34 -10 C 31 -3, 24 0, 14 0 L -22 0 C -34 -4, -40 -18, -38 -42 Z"
+                    fill="#9e8714"
+                    opacity="0.48"
+                  />
+                  <!-- Horizontal Teal-Dark Back Accent Stripe (Matching Reference) -->
+                  <path
+                    d="M -37 -58 Q 0 -53 37 -58 L 38 -48 Q 0 -43 -38 -48 Z"
+                    fill="#346e78"
+                    opacity="0.88"
+                  />
+                  <!-- Crisp White Shoulder Accent Tabs -->
+                  <path
+                    d="M -27 -92 L -14 -94 L -13 -88 L -27 -86 Z"
+                    fill="#f4f7fb"
+                    stroke="#171922"
+                    stroke-width="0.9"
+                  />
+                  <path
+                    d="M 27 -92 L 14 -94 L 13 -88 L 27 -86 Z"
+                    fill="#f4f7fb"
+                    stroke="#171922"
+                    stroke-width="0.9"
+                  />
+                  <!-- Subtle Black Hem Grounding Line -->
+                  <path d="M -26 -1 Q 0 1 26 -1" fill="none" stroke="#171922" stroke-width="2.2" stroke-linecap="round" />
+
+                  <!-- High Popped Futuristic Tech Collar -->
+                  <path
+                    d="M -22 -90 L -24 -105 C -8 -111, 10 -111, 24 -104 L 22 -90 C 8 -95, -8 -95, -22 -90 Z"
+                    fill="#f3d62b"
+                    stroke="#171922"
+                    stroke-width="1.3"
+                  />
+                  <path
+                    d="M -18 -96 C -6 -101, 8 -101, 20 -95 L 18 -103 C 6 -108, -6 -108, -18 -103 Z"
+                    fill="#161924"
+                  />
+
+                  <!-- Boy Head From Behind (Shaved/Closely Trimmed Undercut + Tall Spiky Dark Hair) -->
+                  <g class="seated-head-boy">
+                    <!-- Closely Trimmed Lower Nape & Undercut Sides -->
+                    <path
+                      d="M -13 -103 L -14 -120 C -14 -124, 14 -124, 14 -120 L 13 -103 C 5 -106, -5 -106, -13 -103 Z"
+                      fill="#3b312d"
+                    />
+                    <path
+                      d="M -13 -106 L -12 -113 L -4 -109 L -6 -103 Z"
+                      fill="#d8b29b"
+                      opacity="0.72"
+                    />
+                    <!-- Ears -->
+                    <ellipse cx="-15.5" cy="-118" rx="2.8" ry="4.8" fill="#d9b19a" />
+                    <ellipse cx="15.5" cy="-118" rx="2.8" ry="4.8" fill="#c99f89" />
+                    <!-- Distinctive Tall Spiky Dark Brown Hair Swept Up & Slightly Right -->
+                    <path
+                      d="M -17 -118
+                         L -21 -131 L -13 -133
+                         L -16 -147 L -5 -142
+                         L -1 -157 L 8 -144
+                         L 19 -153 L 17 -136
+                         L 26 -136 L 17 -124
+                         L 15 -116
+                         C 8 -119, -8 -119, -17 -118 Z"
+                      fill="url(#davidBackHair)"
+                      stroke="#150e0b"
+                      stroke-width="1.2"
+                      stroke-linejoin="round"
+                    />
+                    <!-- Dynamic Firework Rim-Light Along Spiky Hair Crown -->
+                    <path
+                      class="finale-rim-stroke"
+                      d="M -16 -146 L -5 -141 L -1 -156 L 8 -143 L 19 -152 L 17 -135"
+                      fill="none"
+                      stroke-width="1.9"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </g>
+
+                  <!-- Jacket Shoulder & Sleeve Firework Rim-Light -->
+                  <path
+                    class="finale-rim-stroke"
+                    d="M -34 -88 C -18 -98, 18 -98, 34 -88"
+                    fill="none"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                  />
+                </g>
+              </g>
+            </g>
+
+            <!-- ============================================================
+                 GIRL SITTING ON THE RIGHT (Reference Sitting Pose — Rear View)
+                 Seated directly on ground, leaning slightly back with both
+                 arms braced downward and hands planted flat beside/behind hips.
+                 Consistent Lucy-inspired white/pink bob with subtle cyan ends,
+                 white cropped jacket w/ dark blue accents & dark bodysuit.
+                 ============================================================ -->
+            <g class="seated-girl" transform="translate(592, 290)">
+              <!-- Flower Bouquet Resting Quietly Beside Her on the Ground -->
+              <g transform="translate(76, -6) rotate(24) scale(0.7)">
+                <path d="M -6 10 L 18 -16 L 34 -4 L 4 22 Z" fill="#efe3d2" stroke="#baa388" stroke-width="1.2" />
+                <path d="M 4 22 L 15 11 L 20 15 L 8 27 Z" fill="#d98ea4" />
+                <circle cx="21" cy="-12" r="7.5" fill="#f09bb2" />
+                <circle cx="30" cy="-14" r="6.8" fill="#d8829d" />
+                <circle cx="26" cy="-5" r="6.5" fill="#f6c7d4" />
+                <circle cx="15" cy="-5" r="5.5" fill="#c9b4e6" />
+              </g>
+
+              <g class="seated-settle seated-settle-girl">
+                <g class="seated-breathe seated-breathe-girl">
+                  <!-- Left Hand Planted Flat on Ground (Fingers Gently Splayed Left) -->
+                  <path
+                    d="M -39 -10 L -45 -2 L -58 -1 C -60 0, -58 2, -54 2 L -46 1 L -49 3 C -50 4, -47 4.2, -44 2.5 L -38 1 L -33 1 L -33 -9 Z"
+                    fill="#ebd0d4"
+                    stroke="#1c1824"
+                    stroke-width="0.95"
+                    stroke-linejoin="round"
+                  />
+                  <!-- Right Hand Planted Flat on Ground (Fingers Gently Splayed Right) -->
+                  <path
+                    d="M 39 -10 L 45 -2 L 58 -1 C 60 0, 58 2, 54 2 L 46 1 L 49 3 C 50 4, 47 4.2, 44 2.5 L 38 1 L 33 1 L 33 -9 Z"
+                    fill="#dec1c8"
+                    stroke="#1c1824"
+                    stroke-width="0.95"
+                    stroke-linejoin="round"
+                  />
+
+                  <!-- Left Arm Braced Straight Down & Outward (White Cropped Sleeve + Dark Blue Forearm Accent) -->
+                  <path
+                    d="M -25 -82 L -36 -54 L -43 -34 L -40 -9 L -31 -9 L -29 -32 L -21 -58 Z"
+                    fill="url(#lucyBackJacket)"
+                    stroke="#8fa0bd"
+                    stroke-width="1.1"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M -42 -34 L -40 -9 L -31 -9 L -29 -32 Z"
+                    fill="url(#lucyBackBlue)"
+                    stroke="#101833"
+                    stroke-width="0.9"
+                  />
+
+                  <!-- Right Arm Braced Straight Down & Outward (White Cropped Sleeve + Dark Blue Forearm Accent) -->
+                  <path
+                    d="M 25 -82 L 36 -54 L 43 -34 L 40 -9 L 31 -9 L 29 -32 L 21 -58 Z"
+                    fill="url(#lucyBackJacket)"
+                    stroke="#8fa0bd"
+                    stroke-width="1.1"
+                    stroke-linejoin="round"
+                  />
+                  <path
+                    d="M 42 -34 L 40 -9 L 31 -9 L 29 -32 Z"
+                    fill="url(#lucyBackBlue)"
+                    stroke="#101833"
+                    stroke-width="0.9"
+                  />
+
+                  <!-- Sleek Dark Futuristic Bodysuit Lower Back & Seated Hips Directly on Ground -->
+                  <path
+                    d="M -21 -66
+                       L 21 -66
+                       L 24 -36
+                       C 28 -22, 29 -8, 22 0
+                       L -22 0
+                       C -29 -8, -28 -22, -24 -36 Z"
+                    fill="#1b1f33"
+                    stroke="#0d101c"
+                    stroke-width="1.2"
+                  />
+                  <!-- Central Slate-Indigo Back Spine Panel -->
+                  <path
+                    d="M -12 -64 L 12 -64 L 15 -22 C 8 -14, -8 -14, -15 -22 Z"
+                    fill="#343b5c"
+                    opacity="0.88"
+                  />
+                  <!-- White Side Waist/Hip Cutout Trim Panels (Signature Reference Silhouette) -->
+                  <path
+                    d="M -23 -32 C -26 -20, -25 -10, -20 -4 L -14 -8 C -17 -14, -18 -22, -16 -30 Z"
+                    fill="#eef3fa"
+                    opacity="0.92"
+                  />
+                  <path
+                    d="M 23 -32 C 26 -20, 25 -10, 20 -4 L 14 -8 C 17 -14, 18 -22, 16 -30 Z"
+                    fill="#dce5f4"
+                    opacity="0.9"
+                  />
+                  <!-- Dark Futuristic Horizontal Hip Strap & Grounded Base -->
+                  <path d="M -25 -15 Q 0 -10 25 -15 L 24 -10 Q 0 -5 -24 -10 Z" fill="#121626" />
+                  <path d="M -18 -3 Q 0 1 18 -3" fill="none" stroke="#0b0e18" stroke-width="2" stroke-linecap="round" />
+
+                  <!-- Bare Upper Shoulder Glimpse + Dark Cybernetic Neck Collar w/ Red Accent -->
+                  <path
+                    d="M -17 -96 C -8 -102, 8 -102, 17 -96 L 21 -82 L -21 -82 Z"
+                    fill="#262b42"
+                    stroke="#111422"
+                    stroke-width="1"
+                  />
+                  <ellipse cx="-16" cy="-86" rx="5.5" ry="3.8" fill="#ecd0d5" />
+                  <ellipse cx="16" cy="-86" rx="5.5" ry="3.8" fill="#dfc1c7" />
+                  <!-- Subtle Red Cybernetic Nape Detail -->
+                  <ellipse cx="0" cy="-96" rx="3" ry="2" fill="#d94e6a" />
+
+                  <!-- Iconic White Cropped Futuristic Jacket Back + Dark Blue Off-Shoulder Collar Bar -->
+                  <path
+                    d="M -27 -82
+                       C -12 -86, 12 -86, 27 -82
+                       L 22 -50
+                       C 10 -56, -10 -56, -22 -50 Z"
+                    fill="url(#lucyBackJacket)"
+                    stroke="#98a8c4"
+                    stroke-width="1.1"
+                  />
+                  <!-- Bold Dark Blue Horizontal Off-Shoulder Collar Strap -->
+                  <path
+                    d="M -31 -82 Q 0 -90 31 -82 L 29 -75 Q 0 -82 -29 -75 Z"
+                    fill="url(#lucyBackBlue)"
+                    stroke="#101836"
+                    stroke-width="1"
+                  />
+                  <!-- 4 Tiny Metallic Back Vents on White Cropped Jacket (Matching Reference) -->
+                  <g fill="#465273" opacity="0.82">
+                    <rect x="-6.5" y="-73" width="4.5" height="3.2" rx="0.7" />
+                    <rect x="2" y="-73" width="4.5" height="3.2" rx="0.7" />
+                    <rect x="-6.5" y="-67" width="4.5" height="3.2" rx="0.7" />
+                    <rect x="2" y="-67" width="4.5" height="3.2" rx="0.7" />
+                  </g>
+
+                  <!-- Girl Head From Behind (Short White/Pale-Pink Bob w/ Subtle Cyan/Blue Ends) -->
+                  <g class="seated-head-girl">
+                    <!-- Short White/Pale-Pink Bob Curving Around Nape with Cyan/Blue Lower Shade -->
+                    <path
+                      class="seated-lucy-bob"
+                      d="M -18 -110
+                         C -19 -131, -8 -138, 0 -138
+                         C 8 -138, 19 -131, 18 -110
+                         C 18 -100, 15 -93, 11 -91
+                         L 7 -98 C 3 -101, -3 -101, -7 -98
+                         L -11 -91 C -15 -93, -18 -100, -18 -110 Z"
+                      fill="url(#lucyBackHair)"
+                      stroke="rgba(130,156,192,0.48)"
+                      stroke-width="1"
+                    />
+                    <!-- Soft Crown Sheen -->
+                    <path
+                      d="M -11 -126 Q 0 -132 11 -126"
+                      fill="none"
+                      stroke="#ffffff"
+                      stroke-width="1.9"
+                      stroke-linecap="round"
+                      opacity="0.75"
+                    />
+                    <!-- Dynamic Firework Rim-Light Along Crown of Bob -->
+                    <path
+                      class="finale-rim-stroke"
+                      d="M -17 -116 C -16 -132, -7 -138, 0 -138 C 7 -138, 16 -132, 17 -116"
+                      fill="none"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                    />
+                  </g>
+
+                  <!-- Shoulder Collar Firework Rim-Light -->
+                  <path
+                    class="finale-rim-stroke"
+                    d="M -30 -82 Q 0 -90 30 -82"
+                    fill="none"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </g>
+              </g>
+            </g>
+          </svg>
+
+          <!-- Usagi Quietly Nearby at the Right Corner of the Overlook -->
+          <div
+            id="usagi-finale"
+            class="usagi-wrapper usagi-finale-bottom-pos usagi--waving"
+            role="button"
+            tabindex="0"
+            aria-label="Usagi gently waving under the fireworks"
+          >
+            <div class="usagi-rig">
+              <img
+                src="./assets/usagi.svg"
+                alt="Usagi waving happily"
+                class="usagi-img"
+                referrerpolicy="no-referrer"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Smooth Cinematic Fade-Out Curtain (Activates Naturally After Fireworks Dissolve) -->
+        <div id="finale-fade-curtain" class="finale-fade-curtain" aria-hidden="true"></div>
+
+        <!-- Quiet Replay Control Only (No Duplicate "I Love You" Text or Captions) -->
+        <div id="finale-replay-bar" class="finale-replay-bar">
+          <button id="btn-replay-finale" class="btn-subtle-text finale-replay-link" type="button">
+            Replay Final Animation
+          </button>
+        </div>
+      </section>
+
+      <!-- ================================================================
+           NO ENDING: THE LITTLE MESSAGE (Calm, Respectful, Independent)
+           ================================================================ -->
+      <section
+        id="scene-no"
+        class="scene scene-no"
+        aria-label="A Sincere Thank You"
+        hidden
+      >
+        <div class="no-shell">
+          <div class="no-card-stage">
+            <div class="no-message-card">
+              <span class="no-moon-mark" aria-hidden="true">☽</span>
+              <div id="no-message-paragraphs" class="no-message-paragraphs"></div>
+              <button id="btn-close-book" class="btn-secondary" type="button">
+                <span>CLOSE THE BOOK</span>
+              </button>
+            </div>
+
+            <!-- Usagi Sitting Gently Beside the Message Box -->
+            <div
+              id="usagi-no"
+              class="usagi-wrapper usagi-no-pos usagi--surprised"
+              aria-label="Usagi sitting gently"
+            >
+              <div class="usagi-rig">
+                <img
+                  src="./assets/usagi.svg"
+                  alt="Usagi sitting peacefully"
+                  class="usagi-img"
+                  referrerpolicy="no-referrer"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Peaceful Closed-Book State (Appears after pressing CLOSE THE BOOK) -->
+          <div id="no-closed-state" class="no-closed-state" hidden>
+            <div class="closed-book-icon" aria-hidden="true">☽</div>
+            <p class="no-closed-title">The book rests gently closed.</p>
+            <p class="no-closed-sub">Wishing you warm nights and peaceful skies always.</p>
+            <button id="btn-reopen-cover" class="btn-subtle-text" type="button">
+              Back to the cover
+            </button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Pure Vanilla JavaScript (GitHub Pages Relative Path) -->
+    <script src="./script.js" defer></script>
+  </body>
+</html>
